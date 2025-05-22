@@ -11,7 +11,7 @@ This repository provides an open implementation of the "Base Extraction Division
 - Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required, randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
 
 ## Demo
-By running `example/pattern_demo.ipynb` and `example/communication_demo.ipynb`, you can obtain simple sample results:
+By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain simple sample results:
 
 ## Patent Information
 This algorithm is based on the following Japanese patent:

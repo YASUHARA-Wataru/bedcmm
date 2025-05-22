@@ -15,7 +15,7 @@
 
 ## デモ
 
-`example/pattern_demo.ipynb`,`exapmle/communication_demo.ipynb` を実行することで、簡単なサンプル結果を得られます：
+`pattern_demo.ipynb`,`communication_demo.ipynb` を実行することで、簡単なサンプル結果を得られます：
 
 
 ## 特許情報
