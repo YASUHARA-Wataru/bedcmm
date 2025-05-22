@@ -23,3 +23,5 @@ dist/
 
 # テスト用ファイル
 pattern_test_easy.py
+
+*.egg-info
