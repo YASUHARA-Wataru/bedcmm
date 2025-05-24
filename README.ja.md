@@ -17,6 +17,8 @@
 
 `pattern_demo.ipynb`,`communication_demo.ipynb` を実行することで、簡単なサンプル結果を得られます：
 
+簡単な説明が、`doc`内に入っています。
+
 
 ## 特許情報
 

@@ -13,6 +13,8 @@ This repository provides an open implementation of the "Base Extraction Division
 ## Demo
 By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain simple sample results:
 
+Easy explanation is in `doc`.
+
 ## Patent Information
 This algorithm is based on the following Japanese patent:
 
