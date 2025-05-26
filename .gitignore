@@ -25,3 +25,10 @@ dist/
 pattern_test_easy.py
 
 *.egg-info
+
+# 例外
+!search_com_keys.cpp
+!search_com_keys_diff.cpp
+!search_com_keys_diff_limted_base7.cpp
+!search_com_keys_limted_base7.cpp
+
