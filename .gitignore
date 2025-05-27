@@ -31,4 +31,10 @@ pattern_test_easy.py
 !search_com_keys_diff.cpp
 !search_com_keys_diff_limted_base7.cpp
 !search_com_keys_limted_base7.cpp
+!bedcm_search_keys_limit7.cpp
+!bedcm_search_keys_diff_2to3_limit7.cpp
+!bedcm_search_keys_diff_3to4_limit7.cpp
+!bedcm_search_keys_diff_4to5_limit7.cpp
+!bedcm_search_keys_diff_5to6_limit7.cpp
+!bedcm_search_keys_diff_6to7_limit7.cpp
 
