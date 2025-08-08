@@ -51,6 +51,6 @@ Since bedcmm obtains the correlation by focusing only on the parts where the bas
 
 | Signal Length     | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 |
 |-------------------|---|---|---|---|----|----|----|----|----|
-| Theoretical Multiplexing | 2 | 2 | 3 | 3 | 4  | 4  | 5  |(5) |(6) |
+| Theoretical Multiplexing | 2 | 2 | 3 | 3 | 4  | 4  | 5  | 6 |(6?) |
 
 ※() is the minimum number because only a portion of the data has been confirmed

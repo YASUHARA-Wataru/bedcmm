@@ -40,4 +40,5 @@ pattern_test_easy.py
 !bedcm_search_keys_bin.cpp
 !bedcm_search_keys_bin_diff.cpp
 !bedcm_search_keys_bin_diff_openMP_ver2.cpp
+!bin2txt.cpp
 
