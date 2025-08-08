@@ -37,8 +37,7 @@ pattern_test_easy.py
 !bedcm_search_keys_diff_4to5_limit7.cpp
 !bedcm_search_keys_diff_5to6_limit7.cpp
 !bedcm_search_keys_diff_6to7_limit7.cpp
-bedcm_search_keys_bin.cpp
-bedcm_search_keys_bin_diff.cpp
-bedcm_search_keys_bin_diff_openMP.cpp
-bedcm_search_keys_bin_diff_openMP_ver2.cpp
+!bedcm_search_keys_bin.cpp
+!bedcm_search_keys_bin_diff.cpp
+!bedcm_search_keys_bin_diff_openMP_ver2.cpp
 
