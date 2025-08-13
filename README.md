@@ -8,7 +8,7 @@ This repository provides an open implementation of the "Base Extraction Division
 - Quantitative pattern extraction
 - Quantitative periodicity calculation
 - Quantitative continuity calculation
-- Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required, randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
+- Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required(only send), randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
 
 ## Demo
 By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain simple sample results:
