@@ -108,7 +108,7 @@ struct BinaryDatas {
 
 int main(void)
 {
-	const int baseCount = 4;
+	const int baseCount = 5;
 	const int length = 13;
     std::string baseCount_output_str = std::to_string(baseCount);
     std::string baseCount_input_str = std::to_string(baseCount-1);
@@ -130,7 +130,7 @@ int main(void)
 
     using bases_data = BinaryDatas<baseCount>;
     bases_data bases;
-    uint16_t last_num,pre_logical_or_data;    
+    //uint16_t last_num,pre_logical_or_data;    
     int max_length = int(pow(2,length));
     size_t done = 0;
     auto start = std::chrono::steady_clock::now();
@@ -150,16 +150,17 @@ int main(void)
         #pragma omp for schedule(dynamic)
         for (size_t idx = 0; idx < all_data.size(); idx++) {
             auto bases = all_data[idx];  // コピーしてスレッドごとに使う
+            uint16_t last_num,pre_logical_or_data;
             last_num = bases.get_base(baseCount-2);
-            //pre_logical_or_data = bases.pre_logical_or();
+            pre_logical_or_data = bases.pre_logical_or();
             for(uint16_t i = last_num+1; i < max_length; i++){
                 bases.set_base(i,baseCount-1);
                 bool flag = true;
                 uint16_t cor_data;
                 uint16_t cor_result;
                 for(int k = 0; k < baseCount ; k++){
-                    //cor_data = bases.logical_or(pre_logical_or_data);
-                    cor_data = bases.logical_all_or();
+                    cor_data = bases.logical_or(pre_logical_or_data);
+
                     cor_result = bases.cyclic_correlation(cor_data,k,length);
                     if(cor_result == 1u){
                         cor_data = bases.logical_or_excluide_i(length,k);
