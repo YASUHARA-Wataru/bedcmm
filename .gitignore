@@ -38,3 +38,4 @@ pattern_test_easy.py
 !bedcm_search_keys_bin_ver_uint16_pruning.cpp
 !bedcm_search_keys_bin_ver_uint16_pruning_lim.cpp
 !bedcm_search_keys_bin_diff_openMP_ver_uint16_pruning_lim.cpp
+!bedcm_search_keys_bin_openMP_ver_uint16_search_one_pruning_ver2.cpp
