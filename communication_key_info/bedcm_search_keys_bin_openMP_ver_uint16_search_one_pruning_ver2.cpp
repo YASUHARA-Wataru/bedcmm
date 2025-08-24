@@ -73,10 +73,30 @@ struct BinaryDatas {
 
 // 再帰的に組合せ探索
 bool dfs(int idx, int baseCount, int length , int base_ll , int base_ul , BinaryDatas &bases, bool &saved, std::ofstream &ofs) {
-    if ((idx > 0) && (idx <= baseCount)) {
+
+    //*
+    if (idx > 0 && idx <baseCount) {
+        // 判定
+        bool pre_flag = true;
+        for(int k = 0; k < idx ; k++){
+            uint16_t cor_data = bases.logical_all_or();
+            uint16_t cor_result = bases.cyclic_correlation(cor_data,k,length);
+            if(cor_result == 1u){
+                cor_data = bases.logical_or_excluide_i(length,k);
+                cor_result = bases.cyclic_correlation(cor_data,k,length);
+                if(cor_result == 0) pre_flag = true;
+                else pre_flag = false;
+            } else pre_flag = false;
+            if(!pre_flag) break;
+        }
+
+        if(!pre_flag) return false;
+    }
+    //*/
+    if (idx == baseCount) {
         // 判定
         bool flag = true;
-        for(int k = 0; k < idx ; k++){
+        for(int k = 0; k < baseCount ; k++){
             uint16_t cor_data = bases.logical_all_or();
             uint16_t cor_result = bases.cyclic_correlation(cor_data,k,length);
             if(cor_result == 1u){
@@ -88,7 +108,7 @@ bool dfs(int idx, int baseCount, int length , int base_ll , int base_ul , Binary
             if(!flag) break;
         }
 
-        if(flag && !saved && (idx == baseCount)) {
+        if(flag && !saved) {
             #pragma omp critical
             {
                 if (!saved) {
@@ -98,8 +118,7 @@ bool dfs(int idx, int baseCount, int length , int base_ll , int base_ul , Binary
                 }
             }
         }
-
-        if(idx == baseCount) return flag;
+        return flag;
     }
 
     uint32_t max_val = (1u << length);
