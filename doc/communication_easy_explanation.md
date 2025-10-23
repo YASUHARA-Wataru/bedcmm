@@ -32,25 +32,44 @@ Since bedcmm obtains the correlation by focusing only on the parts where the bas
 
 ## Comparison Table of Sequences by Theoretical Values (Example)
 
-(*Created based on ChatGPT; possible inaccuracies may be present.*)
-
-| Item                         | **bedcmm**           | Gold Sequence (n=5)        | Walsh Code (length 16)       | ZC Sequence (e.g., length 13) |
-|------------------------------|----------------------|-----------------------------|-------------------------------|-------------------------------|
-| **Quantization Bit Depth**   | **1 bit** (assumed)  | 6–8 bits (typical)          | 4–8 bits (assumes orthogonality) | 4–8 bits (complex phase dependent) |
-| **Sequence Length**          | **12** (tested up to 12) | 31                        | 16 (2⁴)                        | 13 (prime)                     |
-| **Max Theoretical Multiplexing** | **5** (calculated) | 33 (theoretical)            | 16 (fully orthogonal)          | 1 (mainly for autocorrelation) |
-| **Autocorrelation Property** | Good (suited for 1-bit design) | Excellent (binary)       | Perfect orthogonality         | Excellent (small except at zero) |
-| **Cross-correlation Property** | 0                 | -1, 0, 1 (three values)     | 0 (fully orthogonal)           | Small at distance              |
-| **Demodulation Cost**        | **Low (logic only)** | Medium (correlation)        | Medium (orthogonal operations) | High (FFT/complex inner product) |
-| **Compatibility with 1-bit** | **High**             | Low (depends on ADC)        | Low (amplitude orthogonality) | Low (complex orthogonality)   |
-| **Main Application Fields**  | IoT, low-power communication (emerging) | CDMA, GPS            | WLAN, control communication    | 5G, radar, acoustic processing |
+| Sequence / Method | Synchronization Condition | Sequence Length | Cross-Correlation | Quantization | Multiplexing Number |
+|--|--|--|--|--|--|
+| M sequence, GOLD sequence | Code phase synchronization required | Long (theoretically 15 or more, practically 31 or more) | Choose as low as possible | 6–8 bits | Many |
+| ZCZ sequence | Coarse synchronization (quasi-synchronization) within the zone required | Long (theoretically zone = 1 with efficiency 1/2, practically from 16) | Zero within the zone | 4–8 bits | Few |
+| BEDCMM | Symbol boundary synchronization of transmitted signals required | Short (confirmed range: 2 users at length 6 – 19 users at length 31) | 0 | 1 bit | Few (within the confirmed range) |
 
 ---
 
 ## Maximum Theoretical Multiplexing with bedcmm
 
-| Signal Length     | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
-|-------------------|---|---|---|---|----|----|----|----|----|----|
-| Theoretical Multiplexing | 2 | 2 | 3 | 3 | 4  | 4  | 5  | 6 | 6 |(7)|
+|Signal Length|Theoretical Multiplexing|
+|--|--|
+|6|2|
+|7|2|
+|8|3|
+|9|3|
+|10|4|
+|11|4|
+|12|5|
+|13|6|
+|14|6|
+|15|(7)|
+|16|(8)|
+|17|(9)|
+|18|(9)|
+|19|(10)|
+|20|(11)|
+|21|(12)|
+|22|(12)|
+|23|(13)|
+|24|(14)|
+|25|(15)|
+|26|(15)|
+|27|(16)|
+|28|(17)|
+|29|(17)|
+|30|(18)|
+|31|(19)|
+|32|(20)|
 
 ※() is the minimum number because only a portion of the data has been confirmed
