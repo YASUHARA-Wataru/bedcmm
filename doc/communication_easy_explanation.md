@@ -6,6 +6,8 @@ The basic theory of **bedcmm** (Base Extraction Division Correlation Minimum Met
 
 ---
 
+
+
 ## Theory of Communication Multiplexing with bedcmm
 
 **Communication multiplexing using bedcmm** refers to applying bedcmm during signal demodulation for binary signals.
@@ -29,7 +31,17 @@ Since bedcmm obtains the correlation by focusing only on the parts where the bas
 ![demod_core_pic](pic/bedcmm_comm_demod.png)
 
 ---
+## Equation(demodulate)
+$$
+\begin{aligned}
+b &= (b_1,b_2,...,b_l) \\\\
+x &= (x_1,x_2,x_3,...,x_m) \\\\
+I(𝑏) &= \{ 𝑘 ∈ {1,2,3,…,l}|𝑏_𝑘 \neq 0 \} \\\\ 
+C_i(x,b) &= \underset{k \in I(b)}{\land} x_k 
+\end{aligned}
+$$
 
+---
 ## Comparison Table of Sequences by Theoretical Values (Example)
 
 | Sequence / Method | Synchronization Condition | Sequence Length | Cross-Correlation | Quantization | Multiplexing Number |

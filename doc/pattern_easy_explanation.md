@@ -6,6 +6,22 @@ The fundamental theory of **bedcmm** (Base Extraction Division Correlation Minim
 
 ---
 
+## Equation
+$$
+\begin{aligned}
+b &= (b_1,b_2,...,b_l) \\\\
+x &= (x_1,x_2,x_3,...,x_m) \\\\
+I(𝑏) &= \{ 𝑘 ∈ {1,2,3,…,l}|𝑏_𝑘 \neq 0 \} \\\\ 
+C_i(x,b) &= \begin{cases}
+min(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) & min(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) > 0 \\\\
+max(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) & max(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) < 0 \\\\
+0 & else  
+\end{cases}
+\end{aligned}
+$$
+
+---
+
 ## Pattern Extraction with bedcmm
 
 Pattern extraction refers to applying the fundamental theory of bedcmm directly to arbitrary data.

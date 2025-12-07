@@ -4,6 +4,7 @@ bedcmm(基底抽出割算相関最小法)の基礎理論です。
 
 ![core_pic](pic/bedcmm_core.png)
 
+
 ## bedcmmの通信多重の理論
 バイナリの信号に対し、信号を復調する際に、bedcmmを使用するのがbedcmmを使った通信多重化です。
 ### 変調
@@ -23,6 +24,15 @@ bedcmmで相関を取得するので、基底の1の部分のみの信号の中�
 - 復調(コア処理)
 ![demod_core_pic](pic/bedcmm_comm_demod.png)
 
+### 式(復調の時)
+$$
+\begin{aligned}
+b &= (b_1,b_2,...,b_l) \\\\
+x &= (x_1,x_2,x_3,...,x_m) \\\\
+I(𝑏) &= \{ 𝑘 ∈ {1,2,3,…,l}|𝑏_𝑘 \neq 0 \} \\\\ 
+C_i(x,b) &= \underset{k \in I(b)}{\land} x_k 
+\end{aligned}
+$$
 
 
 ## 理論値による系列比較表（例）
