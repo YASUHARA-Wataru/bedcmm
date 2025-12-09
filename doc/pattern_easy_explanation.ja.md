@@ -7,12 +7,12 @@ bedcmm(基底抽出割算相関最小法)の基礎理論です。
 ## 数式
 $$
 \begin{aligned}
-b &= (b_1,b_2,...,b_l) \\\\
+b &= (b_0,b_,...,b_{l-1}) \\\\
 x &= (x_1,x_2,x_3,...,x_m) \\\\
-I(𝑏) &= \{ 𝑘 ∈ {1,2,3,…,l}|𝑏_𝑘 \neq 0 \} \\\\ 
+I(𝑏) &= \\{ 𝑘 ∈ {0,1,2,3,…,l-1}|𝑏_𝑘 \neq 0 \\} \\\\ 
 C_i(x,b) &= \begin{cases}
-min(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) & min(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) > 0 \\\\
-max(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) & max(\frac{x(x_i,x_{i+1},...,x_{i+l})(k \in I(b))}{b_k(k \in I(b))}) < 0 \\\\
+min(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) & min(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) > 0 \\\\
+max(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) & max(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) < 0 \\\\
 0 & else  
 \end{cases}
 \end{aligned}
