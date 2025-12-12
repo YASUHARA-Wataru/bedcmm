@@ -4,7 +4,7 @@ from bedcmm import pattern as bedcmm
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-# load data
+# load data(from https://www.data.jma.go.jp/risk/obsdl/)
 df_tokyo = pd.read_csv('sample_data/data_東京_utf-8.csv',skiprows=4)
 df_akankohan = pd.read_csv('sample_data/data_釧路市阿寒湖畔_utf-8.csv',skiprows=4)
 # 欠損値補完
