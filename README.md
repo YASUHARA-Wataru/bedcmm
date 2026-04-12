@@ -15,6 +15,10 @@ By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain s
 
 Easy explanation is in `doc`.
 
+## How to run faster
+```python setup.py build_ext --inplace```
+run with cython(pattern modules)
+
 ## Patent Information
 This algorithm is based on the following Japanese patent:
 

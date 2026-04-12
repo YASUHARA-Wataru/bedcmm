@@ -19,6 +19,10 @@
 
 簡単な説明が、`doc`内に入っています。
 
+## 高速化について
+```python setup.py build_ext --inplace```
+cython実装になります(pattern modules)
+
 
 ## 特許情報
 
