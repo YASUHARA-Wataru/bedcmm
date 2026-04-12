@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # cython: boundscheck=False, wraparound=False, cdivision=True
+# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
 """
 bedcmm pattern analysis method class(Cython)
 
@@ -119,7 +120,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
                 for i in range(n_base1):
                     for j in range(n_base2):
                         if base[i,j] != 0:
-                            if temp_result > <double> data[index2+i,index2+j]/base[i,j]:
+                            if temp_result > <double> data[index1+i,index2+j]/base[i,j]:
                                 temp_result = <double> data[index1+i,index2+j]/base[i,j]
                 result[index1,index2] = temp_result
 
@@ -341,7 +342,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _periodicity_3d_core_cy(double[:,:,:] data, 
                     for j in range(count2):
                         for k in range(count3):
                             # libc.math.fmin を使うことで Python の min() 呼び出しを回避
-                            temp_sum += fmin(data[i,j,k], data[i + lag1,j + lag2,k + lag2])
+                            temp_sum += fmin(data[i,j,k], data[i + lag1,j + lag2,k + lag3])
                         
                 if (count1 > 0) & (count2 > 0) & (count3 > 0):
                     result[p_idx1,p_idx2,p_idx3] = <double> temp_sum / (count1 * count2 * count3)
