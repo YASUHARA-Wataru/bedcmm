@@ -7,7 +7,6 @@ bedcmm pattern analysis method class(Cython)
 Author: YASUHARA Wataru
 Copyright (c) 2025, Feel a Piece of the World
 """
-
 import numpy as np
 cimport numpy as np
 cimport cython
@@ -41,18 +40,19 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
         nega_cnt = 0
         for i in range(n_base):
             if base[i] != 0:
-                if (data[index+i] > 0 and base[i] > 0) or (data[index+i] < 0 and base[i] < 0):
+                if (data[index+i] >= 0 and base[i] > 0) or (data[index+i] <= 0 and base[i] < 0):
                     all_cnt += 1
                     posi_cnt += 1
-                elif (data[index+i] > 0 and base[i] < 0) or (data[index+i] < 0 and base[i] > 0):
+                elif (data[index+i] >= 0 and base[i] < 0) or (data[index+i] <= 0 and base[i] > 0):
                     all_cnt += 1
                     nega_cnt += 1
+
         if all_cnt == posi_cnt:
             nega_posi_flag = 1
         elif all_cnt == nega_cnt:
             nega_posi_flag = -1
         else:
-            naga_pnega_posi_flagosi_flag = 0
+            nega_posi_flag = 0
 
         # calc pattern
         if nega_posi_flag == 1:
@@ -64,7 +64,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
             result[index] = temp_result
 
         elif nega_posi_flag == -1:
-            temp_result = 0
+            temp_result = -INFINITY
             for i in range(n_base):
                 if base[i] != 0:
                     if temp_result < <double> data[index+i]/base[i]:
@@ -101,12 +101,13 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
             for i in range(n_base1):
                 for j in range(n_base2):
                     if base[i,j] != 0:
-                        if (data[index1+i,index2+j] > 0 and base[i,j] < 0) or (data[index1+i,index2+j] < 0 and base[i,j] > 0):
+                        if (data[index1+i,index2+j] > 0 and base[i,j] > 0) or (data[index1+i,index2+j] < 0 and base[i,j] < 0):
                             all_cnt += 1
                             posi_cnt += 1
                         elif (data[index1+i,index2+j] > 0 and base[i,j] < 0) or (data[index1+i,index2+j] < 0 and base[i,j] > 0):
                             all_cnt += 1
                             nega_cnt += 1
+
             if all_cnt == posi_cnt:
                 nega_posi_flag = 1
             elif all_cnt == nega_cnt:
@@ -125,7 +126,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
                 result[index1,index2] = temp_result
 
             elif nega_posi_flag == -1:
-                temp_result = 0
+                temp_result = -INFINITY
                 for i in range(n_base1):
                     for j in range(n_base2):
                         if base[i,j] != 0:
@@ -167,12 +168,13 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:
                     for j in range(n_base2):
                         for k in range(n_base3):
                             if base[i,j,k] != 0:
-                                if (data[index1+i,index2+j,index3+k] > 0 and base[i,j,k] < 0) or (data[index1+i,index2+j,index3+k] < 0 and base[i,j,k] > 0):
+                                if (data[index1+i,index2+j,index3+k] > 0 and base[i,j,k] > 0) or (data[index1+i,index2+j,index3+k] < 0 and base[i,j,k] < 0):
                                     all_cnt += 1
                                     posi_cnt += 1
                                 elif (data[index1+i,index2+j,index3+k] > 0 and base[i,j,k] < 0) or (data[index1+i,index2+j,index3+k] < 0 and base[i,j,k] > 0):
                                     all_cnt += 1
                                     nega_cnt += 1
+
                 if all_cnt == posi_cnt:
                     nega_posi_flag = 1
                 elif all_cnt == nega_cnt:
@@ -189,10 +191,10 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:
                                 if base[i,j,k] != 0:
                                     if temp_result > <double> data[index1+i,index2+j,index3+k]/base[i,j,k]:
                                         temp_result = <double> data[index1+i,index2+j,index3+k]/base[i,j,k]
-                    result[index1,index2] = temp_result
+                    result[index1,index2,index3] = temp_result
 
                 elif nega_posi_flag == -1:
-                    temp_result = 0
+                    temp_result = -INFINITY
                     for i in range(n_base1):
                         for j in range(n_base2):
                             for k in range(n_base3):
@@ -382,11 +384,10 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _continuity_1d_core_cy(double[:] data, Py_ss
         # 内側のループを純粋なCで回す
         # スライシングを使わず、インデックス i と i+lag を直接比較
         for i in range(count):
-            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
             temp_min = data[i]
             for j in range(lag):
-                if data[i + j] < temp_min:
-                    temp_min = data[i+j]
+                if data[i + j + 1] < temp_min:
+                    temp_min = data[i+j+1]
 
             temp_sum += temp_min
                 
@@ -407,7 +408,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _continuity_2d_core_cy(double[:,:] data, Py_
     cdef Py_ssize_t n_conts2 = conts2.shape[0]
     cdef np.ndarray[DTYPE_d_t, ndim=2] result = np.zeros((n_conts1,n_conts2), dtype=np.float64)
     
-    cdef Py_ssize_t p_idx1, p_idx2, i, j, k, l, lag1, lag2 
+    cdef Py_ssize_t p_idx1, p_idx2, i, j, k, l, lag1, lag2, num_cnt 
     cdef double temp_sum, temp_min
     cdef Py_ssize_t count1, count2
     cdef double mean_val = 0
@@ -430,22 +431,22 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _continuity_2d_core_cy(double[:,:] data, Py_
             temp_sum = 0
             count1 = n_data1 - lag1
             count2 = n_data2 - lag2
-            
+            num_cnt = 0
             # 内側のループを純粋なCで回す
             # スライシングを使わず、インデックス i と i+lag を直接比較
             for i in range(count1):
                 for j in range(count2):
                     temp_min = data[i,j]
-                    for k in range(lag1):
-                        for l in range(lag2):
+                    for k in range(lag1+1):
+                        for l in range(lag2+1):
                             if data[i+k,j+l] < temp_min:
                                 temp_min = data[i+k,j+l]
 
-                    # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                    num_cnt += 1
                     temp_sum += temp_min
                     
             if (count1 > 0) & (count2 > 0):
-                result[p_idx1,p_idx2] = <double> temp_sum / (count1 * count2)
+                result[p_idx1,p_idx2] = <double> temp_sum / num_cnt
             else:
                 result[p_idx1,p_idx2] = 0
             
@@ -464,7 +465,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _continuity_3d_core_cy(double[:,:,:] data, P
     cdef Py_ssize_t n_conts3 = conts3.shape[0]
     cdef np.ndarray[DTYPE_d_t, ndim=3] result = np.zeros((n_conts1,n_conts2,n_conts3), dtype=np.float64)
     
-    cdef Py_ssize_t p_idx1, p_idx2, p_idx3, i, j, k, l, m, n, lag1, lag2, lag3
+    cdef Py_ssize_t p_idx1, p_idx2, p_idx3, i, j, k, l, m, n, lag1, lag2, lag3, num_cnt
     cdef double temp_sum, temp_min
     cdef Py_ssize_t count1, count2, count3
     cdef double mean_val = 0
@@ -491,24 +492,23 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _continuity_3d_core_cy(double[:,:,:] data, P
                 count1 = n_data1 - lag1
                 count2 = n_data2 - lag2
                 count3 = n_data3 - lag3
-                
+                num_cnt = 0
                 # 内側のループを純粋なCで回す
                 # スライシングを使わず、インデックス i と i+lag を直接比較
                 for i in range(count1):
                     for j in range(count2):
                         for k in range(count3):
                             temp_min = data[i,j,k]
-                            for l in range(lag1):
-                                for m in range(lag2):
-                                    for n in range(lag3):
+                            for l in range(lag1+1):
+                                for m in range(lag2+1):
+                                    for n in range(lag3+1):
                                         if data[i+l,j+m,k+n] < temp_min:
                                             temp_min = data[i+l,j+m,k+n]
-
-                            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                            num_cnt += 1
                             temp_sum += temp_min
                         
                 if (count1 > 0) & (count2 > 0) & (count3 > 0):
-                    result[p_idx1,p_idx2,p_idx3] = <double> temp_sum / (count1 * count2 * count3)
+                    result[p_idx1,p_idx2,p_idx3] = <double> temp_sum / num_cnt
                 else:
                     result[p_idx1,p_idx2,p_idx3] = 0
             

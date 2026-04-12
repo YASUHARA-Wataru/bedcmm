@@ -309,7 +309,7 @@ def continuity(data, conts=None):
 def _continuity_1d(data,conts):
     
     if conts is None:
-        conts = np.arange(0,int(data.shape[0]/2)+1)
+        conts = np.arange(0,data.shape[0])
 
     period_list = np.ascontiguousarray(conts,dtype=np.int64)
 
@@ -344,8 +344,8 @@ def _continuity_1d_core(data,conts_list):
 def _continuity_2d(data,conts):
     
     if conts is None:
-        conts1_list = np.arange(0,int(data.shape[0]/2)+1)
-        conts2_list = np.arange(0,int(data.shape[1]/2)+1)
+        conts1_list = np.arange(0,data.shape[0])
+        conts2_list = np.arange(0,data.shape[1])
     else:
         conts1_list = conts[0]
         conts2_list = conts[1]
@@ -368,6 +368,7 @@ def _continuity_2d_core(data,conts1_list,conts2_list):
     
     max_len1 = data.shape[0]
     max_len2 = data.shape[1]
+
     for c1_idx,cont1 in enumerate(conts1_list):
         for c2_idx,cont2 in enumerate(conts2_list):
 
@@ -386,9 +387,9 @@ def _continuity_2d_core(data,conts1_list,conts2_list):
 def _continuity_3d(data,conts):
     
     if conts is None:
-        conts1_list = np.arange(0,int(data.shape[0]/2)+1)
-        conts2_list = np.arange(0,int(data.shape[1]/2)+1)
-        conts3_list = np.arange(0,int(data.shape[2]/2)+1)
+        conts1_list = np.arange(0,data.shape[0])
+        conts2_list = np.arange(0,data.shape[1])
+        conts3_list = np.arange(0,data.shape[2])
     else:
         conts1_list = conts[0]
         conts2_list = conts[1]
