@@ -336,18 +336,9 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _continuity_1d_core_cy(double[:] data, Py_ss
     cdef Py_ssize_t count
     cdef double mean_val = 0
 
-    # データの平均をあらかじめ計算（lag=0用）
-    for i in range(n_data):
-        mean_val += data[i]
-    mean_val /= <double> n_data
-
     for p_idx in range(n_conts):
         lag = conts[p_idx]
         
-        if lag == 0:
-            result[p_idx] = mean_val
-            continue
-            
         temp_sum = 0
         count = n_data - lag
         
@@ -393,10 +384,6 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _continuity_2d_core_cy(double[:,:] data, Py_
         for p_idx2 in range(n_conts2):
             lag1 = conts1[p_idx1]
             lag2 = conts2[p_idx2]
-
-            if (lag1 == 0) & (lag2 == 0):
-                result[p_idx1,p_idx2] = mean_val
-                continue
                 
             temp_sum = 0
             count1 = n_data1 - lag1
@@ -453,10 +440,6 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _continuity_3d_core_cy(double[:,:,:] data, P
                 lag1 = conts1[p_idx1]
                 lag2 = conts2[p_idx2]
                 lag3 = conts3[p_idx3]
-
-                if (lag1 == 0) & (lag2 == 0) & (lag3 == 0):
-                    result[p_idx1,p_idx2] = mean_val
-                    continue
                     
                 temp_sum = 0
                 count1 = n_data1 - lag1
