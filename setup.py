@@ -10,7 +10,7 @@ ext_modules = cythonize([
         include_dirs=[numpy.get_include()],
         language="c"
     )
-])
+], compiler_directives={'language_level': "3"})
 
 setup(
     name="bedcmm",

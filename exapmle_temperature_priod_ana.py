@@ -31,8 +31,8 @@ print(f"akankohan/tokyo diff ratio:{np.mean(diff_temp_akankohan)/np.mean(diff_te
 max_lag = 97
 #max_lag = int(len(np_temp_tokyo)/2)
 min_lag = 12
-periodicity_tokyo = bedcmm.periodicity_1d(np_temp_tokyo)
-periodicity_akankohan = bedcmm.periodicity_1d(np_temp_akankohan)
+periodicity_tokyo = bedcmm.periodicity(np_temp_tokyo)
+periodicity_akankohan = bedcmm.periodicity(np_temp_akankohan)
 acf_tokyo = sm.tsa.stattools.acf(np_temp_tokyo, nlags=max_lag)
 acf_akankohan = sm.tsa.stattools.acf(np_temp_akankohan, nlags=max_lag)
 print(f"tokyo periodicity std :{np.std(periodicity_tokyo[min_lag:max_lag])}")

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# cython: boundscheck=False, wraparound=False, cdivision=True
 """
 bedcmm pattern analysis method class(Cython)
 
@@ -13,257 +14,501 @@ cimport cython
 ctypedef np.float64_t DTYPE_d_t
 ctypedef np.int32_t DTYPE_i_t
 
-cpdef np.ndarray[DTYPE_d_t, ndim=1] pattern_1d(np.ndarray[DTYPE_d_t, ndim=1] data,np.ndarray[DTYPE_d_t, ndim=1] base):
+# Cレベルの関数を利用するために math をインポート
+from libc.math cimport fmin
+from libc.math cimport INFINITY
 
-    cdef np.ndarray[DTYPE_d_t, ndim=1] tmp_data,tmp_result 
+cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base):
+
     cdef np.ndarray[DTYPE_d_t, ndim=1] result
-    cdef int index
+    cdef double temp_result
+    cdef Py_ssize_t index
+    cdef Py_ssize_t n_data, n_base
+    cdef Py_ssize_t i
+    cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
+    cdef Py_ssize_t naga_posi_flag
 
-    if len((<object> data).shape) != 1:
-        raise Exception('data must 1D array.')
+    n_data = data.shape[0]
+    n_base = base.shape[0]
+    
+    result = np.zeros(n_data + 1 - n_base, dtype=np.float64)
 
-    if len((<object> base).shape) != 1:
-        raise Exception('base must 1D array.')
+    for index in range(n_data + 1 - n_base):
+        # negative check
+        all_cnt = 0
+        posi_cnt = 0
+        nega_cnt = 0
+        for i in range(n_base):
+            if base[i] != 0:
+                if data[index+i]*base[i] > 0:
+                    all_cnt += 1
+                    posi_cnt += 1
+                elif data[index+i]*base[i] < 0:
+                    all_cnt += 1
+                    nega_cnt += 1
+        if all_cnt == posi_cnt:
+            naga_posi_flag = 1
+        elif all_cnt == nega_cnt:
+            naga_posi_flag = -1
+        else:
+            naga_posi_flag = 0
 
-    result = np.zeros(data.shape[0] + 1 - base.shape[0])
-    for index in range(data.shape[0] + 1 - base.shape[0]):
-        tmp_data = data[index:index+base.shape[0]]
-        tmp_result = tmp_data[base != 0] / base[base!=0]
-        if tmp_result[tmp_result >= 0].shape[0] == tmp_result.shape[0] :
-            result[index] = min(tmp_result[tmp_result >= 0])
-        elif tmp_result[tmp_result <= 0].shape[0] == tmp_result.shape[0]:
-            result[index] = max(tmp_result[tmp_result <= 0])
+        # calc pattern
+        if naga_posi_flag == 1:
+            temp_result = INFINITY
+            for i in range(n_base):
+                if base[i] != 0:
+                    if temp_result > <double> data[index+i]/base[i]:
+                        temp_result = <double> data[index+i]/base[i]
+            result[index] = temp_result
+
+        elif naga_posi_flag == -1:
+            temp_result = 0
+            for i in range(n_base):
+                if base[i] != 0:
+                    if temp_result < <double> data[index+i]/base[i]:
+                        temp_result = <double> data[index+i]/base[i]
+            result[index] = temp_result
         else:
             result[index] = 0
-    
+
     return result
 
+cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] base):
 
-cpdef np.ndarray[DTYPE_d_t, ndim=2] pattern_2d(np.ndarray[DTYPE_d_t, ndim=2] data,np.ndarray[DTYPE_d_t, ndim=2] base):
-
-    cdef np.ndarray[DTYPE_d_t, ndim=2] tmp_data
-    cdef np.ndarray[DTYPE_d_t, ndim=1] tmp_result 
     cdef np.ndarray[DTYPE_d_t, ndim=2] result
-    cdef int i_index,j_index
+    cdef double temp_result
+    cdef Py_ssize_t index1,index2
+    cdef Py_ssize_t n_data1, n_data2, n_base1, n_base2
+    cdef Py_ssize_t i,j
+    cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
+    cdef Py_ssize_t naga_posi_flag
 
-    if len((<object> data).shape) != 2:
-        raise Exception('data must 2D array.')
-
-    if len((<object> base).shape) != 2:
-        raise Exception('base must 2D array.')
-
-
-    result = np.zeros((data.shape[0] + 1 - base.shape[0],data.shape[1] + 1  - base.shape[1]))
+    n_data1 = data.shape[0]
+    n_data2 = data.shape[1]
+    n_base1 = base.shape[0]
+    n_base2 = base.shape[1]
     
-    for i_index in range(data.shape[0] + 1  - base.shape[0]):
-        for j_index in range(data.shape[1] + 1  - base.shape[1]):
-            tmp_data = data[i_index:i_index+base.shape[0],j_index:j_index+base.shape[1]]
-            tmp_result = tmp_data[base != 0] / base[base!=0]
-            if tmp_result[tmp_result >= 0].shape[0] == tmp_result.shape[0] :
-                result[i_index,j_index] = min(tmp_result[tmp_result >= 0])
-            elif tmp_result[tmp_result <= 0].shape[0] == tmp_result.shape[0]:
-                result[i_index,j_index] = max(tmp_result[tmp_result <= 0])
+    result = np.zeros((n_data1 + 1 - n_base1, n_data2 + 1- n_base2), dtype=np.float64)
+
+    for index1 in range(n_data1 + 1 - n_base1):
+        for index2 in range(n_data2 + 1 - n_base2):
+            # negative check
+            all_cnt = 0
+            posi_cnt = 0
+            nega_cnt = 0
+            for i in range(n_base1):
+                for j in range(n_base2):
+                    if base[i,j] != 0:
+                        if data[index1+i,index2+j]*base[i,j] > 0:
+                            all_cnt += 1
+                            posi_cnt += 1
+                        elif data[index1+i,index2+j]*base[i,j] < 0:
+                            all_cnt += 1
+                            nega_cnt += 1
+            if all_cnt == posi_cnt:
+                naga_posi_flag = 1
+            elif all_cnt == nega_cnt:
+                naga_posi_flag = -1
             else:
-                result[i_index,j_index] = 0
-    
+                naga_posi_flag = 0
+
+            # calc pattern
+            if naga_posi_flag == 1:
+                temp_result = INFINITY
+                for i in range(n_base1):
+                    for j in range(n_base2):
+                        if base[i,j] != 0:
+                            if temp_result > <double> data[index2+i,index2+j]/base[i,j]:
+                                temp_result = <double> data[index1+i,index2+j]/base[i,j]
+                result[index1,index2] = temp_result
+
+            elif naga_posi_flag == -1:
+                temp_result = 0
+                for i in range(n_base1):
+                    for j in range(n_base2):
+                        if base[i,j] != 0:
+                            if temp_result < <double> data[index1+i,index2+j]/base[i,j]:
+                                temp_result = <double> data[index1+i,index2+j]/base[i,j]
+                result[index1,index2] = temp_result
+            else:
+                result[index1,index2] = 0
+
     return result
 
-cpdef np.ndarray[DTYPE_d_t, ndim=3] pattern_3d(np.ndarray[DTYPE_d_t, ndim=3] data,np.ndarray[DTYPE_d_t, ndim=3] base):
+cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:,:] base):
 
-    cdef np.ndarray[DTYPE_d_t, ndim=3] tmp_data 
-    cdef np.ndarray[DTYPE_d_t, ndim=1] tmp_result 
     cdef np.ndarray[DTYPE_d_t, ndim=3] result
-    cdef int i_index,j_index,k_index
+    cdef double temp_result
+    cdef Py_ssize_t index1,index2,index3
+    cdef Py_ssize_t n_data1, n_data2, n_data3, n_base1, n_base2, n_base3
+    cdef Py_ssize_t i,j,k
+    cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
+    cdef Py_ssize_t naga_posi_flag
 
-    if len((<object> data).shape) != 3:
-        raise Exception('data must 3D array.')
-
-    if len((<object> base).shape) != 3:
-        raise Exception('base must 3D array.')
-
-    result = np.zeros((data.shape[0] + 1  - base.shape[0],data.shape[1] + 1  - base.shape[1],data.shape[2] + 1  - base.shape[2]))
+    n_data1 = data.shape[0]
+    n_data2 = data.shape[1]
+    n_data3 = data.shape[2]
+    n_base1 = base.shape[0]
+    n_base2 = base.shape[1]
+    n_base3 = base.shape[2]
     
-    for i_index in range(data.shape[0] + 1  - base.shape[0]):
-        for j_index in range(data.shape[1] + 1  - base.shape[1]):
-            for k_index in range(data.shape[2] + 1  - base.shape[2]):
-                tmp_data = data[i_index:i_index+base.shape[0],
-                                j_index:j_index+base.shape[1],
-                                k_index:k_index+base.shape[2]]
-                tmp_result = tmp_data[base != 0] / base[base!=0]
-                if tmp_result[tmp_result >= 0].shape[0] == tmp_result.shape[0] :
-                    result[i_index,j_index,k_index] = min(tmp_result[tmp_result >= 0])
-                elif tmp_result[tmp_result <= 0].shape[0] == tmp_result.shape[0]:
-                    result[i_index,j_index,k_index] = max(tmp_result[tmp_result <= 0])
+    result = np.zeros((n_data1 + 1 - n_base1, n_data2 + 1 - n_base2, n_data3 + 1 - n_base3), dtype=np.float64)
+
+    for index1 in range(n_data1 + 1 - n_base1):
+        for index2 in range(n_data2 + 1 - n_base2):
+            for index3 in range(n_data3 + 1 - n_base3):
+                # negative check
+                all_cnt = 0
+                posi_cnt = 0
+                nega_cnt = 0
+                for i in range(n_base1):
+                    for j in range(n_base2):
+                        for k in range(n_base3):
+                            if base[i,j,k] != 0:
+                                if data[index1+i,index2+j,index3+k]*base[i,j,k] > 0:
+                                    all_cnt += 1
+                                    posi_cnt += 1
+                                elif data[index1+i,index2+j,index3+k]*base[i,j,k] < 0:
+                                    all_cnt += 1
+                                    nega_cnt += 1
+                if all_cnt == posi_cnt:
+                    naga_posi_flag = 1
+                elif all_cnt == nega_cnt:
+                    naga_posi_flag = -1
                 else:
-                    result[i_index,j_index,k_index] = 0
+                    naga_posi_flag = 0
+
+                # calc pattern
+                if naga_posi_flag == 1:
+                    temp_result = INFINITY
+                    for i in range(n_base1):
+                        for j in range(n_base2):
+                            for k in range(n_base3):
+                                if base[i,j,k] != 0:
+                                    if temp_result > <double> data[index1+i,index2+j,index3+k]/base[i,j,k]:
+                                        temp_result = <double> data[index1+i,index2+j,index3+k]/base[i,j,k]
+                    result[index1,index2] = temp_result
+
+                elif naga_posi_flag == -1:
+                    temp_result = 0
+                    for i in range(n_base1):
+                        for j in range(n_base2):
+                            for k in range(n_base3):
+                                if base[i,j,k] != 0:
+                                    if temp_result < <double> data[index1+i,index2+j,index3+k]/base[i,j,k]:
+                                        temp_result = <double> data[index1+i,index2+j,index3+k]/base[i,j,k]
+                    result[index1,index2,index3] = temp_result
+                else:
+                    result[index1,index2,index3] = 0
+
+    return result
+
+cpdef np.ndarray[DTYPE_d_t, ndim=1] _periodicity_1d_core_cy(double[:] data, Py_ssize_t[:] periods):
+    """
+    1次元データの周期性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data = data.shape[0]
+    cdef Py_ssize_t n_periods = periods.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=1] result = np.zeros(n_periods, dtype=np.float64)
     
+    cdef Py_ssize_t p_idx, i, lag
+    cdef double temp_sum
+    cdef Py_ssize_t count
+    cdef double mean_val = 0
+
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data):
+        mean_val += data[i]
+    mean_val /= <double> n_data
+
+    for p_idx in range(n_periods):
+        lag = periods[p_idx]
+        
+        if lag == 0:
+            result[p_idx] = mean_val
+            continue
+            
+        temp_sum = 0
+        count = n_data - lag
+        
+        # 内側のループを純粋なCで回す
+        # スライシングを使わず、インデックス i と i+lag を直接比較
+        for i in range(count):
+            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+            temp_sum += fmin(data[i], data[i + lag])
+                
+        if count > 0:
+            result[p_idx] = <double> temp_sum / count
+        else:
+            result[p_idx] = 0
+            
     return result
 
 
-cpdef np.ndarray[DTYPE_d_t, ndim=1] periodicity_1d(np.ndarray[DTYPE_d_t, ndim=1] data):
-
-    cdef int max_preiod
-    cdef np.ndarray[DTYPE_d_t, ndim=1] preiod,temp_data
-    cdef int a_preiod,index
+cpdef np.ndarray[DTYPE_d_t, ndim=2] _periodicity_2d_core_cy(double[:,:] data, Py_ssize_t[:] periods1, Py_ssize_t[:] periods2):
+    """
+    2次元データの周期性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data1 = data.shape[0]
+    cdef Py_ssize_t n_data2 = data.shape[1]
+    cdef Py_ssize_t n_periods1 = periods1.shape[0]
+    cdef Py_ssize_t n_periods2 = periods2.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=2] result = np.zeros((n_periods1,n_periods2), dtype=np.float64)
     
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
+    cdef Py_ssize_t p_idx1, p_idx2, i, j, lag1, lag2 
+    cdef double temp_sum
+    cdef Py_ssize_t count1, count2
+    cdef double mean_val = 0
 
-    max_preiod = int(data.shape[0]/2)
-    preiod = np.zeros(max_preiod+1)
-    preiod[0] = np.mean(data)
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data1):
+        for j in range(n_data2):
+            mean_val += data[i,j]
+    mean_val /= <double> n_data1*n_data2
 
-    for a_preiod in range(1,max_preiod+1):
-        temp_data = np.zeros(len(data) - a_preiod)
-        for index in range(data.shape[0] - a_preiod):
-            temp_data[index] = min([data[index],data[index+a_preiod]])
-                
-        preiod[a_preiod]=np.mean(temp_data)
-    
-    return preiod
+    for p_idx1 in range(n_periods1):
+        for p_idx2 in range(n_periods2):
+            lag1 = periods1[p_idx1]
+            lag2 = periods2[p_idx2]
 
-
-cpdef np.ndarray[DTYPE_d_t, ndim=2] periodicity_2d(np.ndarray[DTYPE_d_t, ndim=2] data):
-
-    cdef int max_preiod1,max_preiod2
-    cdef np.ndarray[DTYPE_d_t, ndim=2] preiod ,temp_data
-    cdef int preiod1,preiod2
-    
-    if len((<object> data).shape) != 2:
-        raise Exception('data must 2D array.')
-
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
-
-    max_preiod1 = int(data.shape[0]/2)
-    max_preiod2 = int(data.shape[1]/2)
-    preiod = np.zeros((max_preiod1+1,max_preiod2+1))
-
-    for preiod1 in range(max_preiod1+1):
-        for preiod2 in range(max_preiod2+1):
-            if preiod1 == 0 and preiod2 == 0:
-                preiod[0,0] = np.mean(data)
+            if (lag1 == 0) & (lag2 == 0):
+                result[p_idx1,p_idx2] = mean_val
                 continue
-            temp_data = np.zeros((data.shape[0] - preiod1,data.shape[1] - preiod2))
-            for index1 in range(data.shape[0] - preiod1):
-                for index2 in range(data.shape[1] - preiod2):
-                    temp_data[index1,index2] =min([data[index1,index2],data[index1+preiod1,index2+preiod2]])
-
-                preiod[preiod1,preiod2]=np.mean(temp_data)
-        
-    return preiod
-
-cpdef np.ndarray[DTYPE_d_t, ndim=3] periodicity_3d(np.ndarray[DTYPE_d_t, ndim=3] data):
-
-    cdef int max_preiod1,max_preiod2,max_preiod3
-    cdef np.ndarray[DTYPE_d_t, ndim=3] preiod,temp_data
-    cdef int preiod1,preiod2,preiod3
-    
-    if len((<object> data).shape) != 3:
-        raise Exception('data must 3D array.')
-
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
-
-    max_preiod1 = int(data.shape[0]/2)
-    max_preiod2 = int(data.shape[1]/2)
-    max_preiod3 = int(data.shape[2]/2)
-    preiod = np.zeros((max_preiod1+1,max_preiod2+1,max_preiod3+1))
-
-    for preiod1 in range(max_preiod1+1):
-        for preiod2 in range(max_preiod2+1):
-            for preiod3 in range(max_preiod3+1):
-                if (preiod1 == 0) and (preiod2 == 0) and (preiod3 == 0):
-                    preiod[0,0,0] = np.mean(data)
-                    continue
-
-                temp_data = np.zeros((data.shape[0] - preiod1,data.shape[1] - preiod2,data.shape[2] - preiod3))
-                for index1 in range(data.shape[0] - preiod1):
-                    for index2 in range(data.shape[1] - preiod2):
-                        for index3 in range(data.shape[2] - preiod3):
-                            temp_data[index1,index2,index3]=min([data[index1,index2,index3],data[index1+preiod1,index2+preiod2,index3+preiod3]])
-
-                preiod[preiod1,preiod2,preiod3]=np.mean(temp_data)
-        
-    return preiod
-
-
-cpdef np.ndarray[DTYPE_d_t, ndim=1] continuity_1d(np.ndarray[DTYPE_d_t, ndim=1] data):
-
-    cdef int max_cont1
-    cdef np.ndarray[DTYPE_d_t, ndim=1] cont,temp_data
-    cdef int cont1
-
-    if len((<object> data).shape) != 1:
-        raise Exception('data must 1D array.')
-
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
-
-    max_cont1 = data.shape[0]
-    cont = np.zeros(max_cont1)
-    for cont1 in range(1,max_cont1+1):
-        temp_data = np.zeros(max_cont1 + 1 - cont1)
-        for index1 in range(max_cont1 + 1 - cont1):
-            temp_data[index1] = min(data[index1:index1+cont1].flatten())
-
-        cont[cont1-1]=np.mean(temp_data)
-        
-    return cont
-
-cpdef np.ndarray[DTYPE_d_t, ndim=2] continuity_2d(np.ndarray[DTYPE_d_t, ndim=2] data):
-
-    cdef int max_cont1,max_cont2
-    cdef np.ndarray[DTYPE_d_t, ndim=2] cont,temp_data
-    cdef int cont1,cont2
-
-    if len((<object> data).shape) != 2:
-        raise Exception('data must 2D array.')
-
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
-
-    max_cont1 = data.shape[0]
-    max_cont2 = data.shape[1]
-
-    cont = np.zeros((max_cont1,max_cont2))    
-    for cont1 in range(1,max_cont1+1):
-        for cont2 in range(1,max_cont2+1):
-            temp_data = np.zeros((max_cont1 + 1 - cont1,max_cont2 + 1 - cont2))
-            for index1 in range(max_cont1 - cont1):
-                for index2 in range(max_cont2 - cont2):
-                        temp_data[index1,index2] = min(data[index1:index1+cont1,index2:index2+cont2].flatten())
-         
-            cont[cont1-1,cont2-1]=np.mean(temp_data)
-        
-    return cont
-
-cpdef np.ndarray[DTYPE_d_t, ndim=3] continuity_3d(np.ndarray[DTYPE_d_t, ndim=3] data):
-
-    cdef int max_cont1,max_cont2,max_cont3
-    cdef np.ndarray[DTYPE_d_t, ndim=3] cont,temp_data
-    cdef int cont1,cont2,cont3
-
-    if len((<object> data).shape) != 3:
-        raise Exception('data must 3D array.')
-
-    if np.min(data) < 0:
-        raise Exception('data must be positive.')
-
-    max_cont1 = data.shape[0]
-    max_cont2 = data.shape[1]
-    max_cont3 = data.shape[2]
-
-    cont = np.zeros((max_cont1,max_cont2,max_cont3))    
-    for cont1 in range(1,max_cont1+1):
-        for cont2 in range(1,max_cont2+1):
-            for cont3 in range(1,max_cont3+1):
-                temp_data = np.zeros((max_cont1 + 1 - cont1,max_cont2 + 1 - cont2,max_cont3 + 1 - cont3))
-                for index1 in range(max_cont1 + 1 - cont1):
-                    for index2 in range(max_cont2 + 1 - cont2):
-                        for index3 in range(max_cont3 + 1 - cont3):
-                            temp_data[index1,index2,index3]=min(data[index1:index1+cont1,index2:index2+cont2,index3:index3+cont3].flatten())
                 
-                cont[cont1-1,cont2-1,cont3-1]=np.mean(temp_data)
+            temp_sum = 0
+            count1 = n_data1 - lag1
+            count2 = n_data2 - lag2
+            
+            # 内側のループを純粋なCで回す
+            # スライシングを使わず、インデックス i と i+lag を直接比較
+            for i in range(count1):
+                for j in range(count2):
+                    # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                    temp_sum += fmin(data[i,j], data[i + lag1,j + lag2])
+                    
+            if (count1 > 0) & (count2 > 0):
+                result[p_idx1,p_idx2] = <double> temp_sum / (count1 * count2)
+            else:
+                result[p_idx1,p_idx2] = 0
+            
+    return result
+
+
+cpdef np.ndarray[DTYPE_d_t, ndim=3] _periodicity_3d_core_cy(double[:,:,:] data, Py_ssize_t[:] periods1, Py_ssize_t[:] periods2, Py_ssize_t[:] periods3):
+    """
+    3次元データの周期性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data1 = data.shape[0]
+    cdef Py_ssize_t n_data2 = data.shape[1]
+    cdef Py_ssize_t n_data3 = data.shape[2]
+    cdef Py_ssize_t n_periods1 = periods1.shape[0]
+    cdef Py_ssize_t n_periods2 = periods2.shape[0]
+    cdef Py_ssize_t n_periods3 = periods3.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=3] result = np.zeros((n_periods1,n_periods2,n_periods3), dtype=np.float64)
+    
+    cdef Py_ssize_t p_idx1, p_idx2, p_idx3, i, j, k, lag1, lag2, lag3
+    cdef double temp_sum
+    cdef Py_ssize_t count1, count2, count3
+    cdef double mean_val = 0
+
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data1):
+        for j in range(n_data2):
+            for k in range(n_data3):
+                mean_val += data[i,j,k]
+    mean_val /= <double> n_data1*n_data2*n_data3
+
+    for p_idx1 in range(n_periods1):
+        for p_idx2 in range(n_periods2):
+            for p_idx3 in range(n_periods3):
+                lag1 = periods1[p_idx1]
+                lag2 = periods2[p_idx2]
+                lag3 = periods3[p_idx3]
+
+                if (lag1 == 0) & (lag2 == 0) & (lag3 == 0):
+                    result[p_idx1,p_idx2,p_idx3]= mean_val
+                    continue
+                    
+                temp_sum = 0
+                count1 = n_data1 - lag1
+                count2 = n_data2 - lag2
+                count3 = n_data3 - lag3
+                
+                # 内側のループを純粋なCで回す
+                # スライシングを使わず、インデックス i と i+lag を直接比較
+                for i in range(count1):
+                    for j in range(count2):
+                        for k in range(count3):
+                            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                            temp_sum += fmin(data[i,j,k], data[i + lag1,j + lag2,k + lag2])
+                        
+                if (count1 > 0) & (count2 > 0) & (count3 > 0):
+                    result[p_idx1,p_idx2,p_idx3] = <double> temp_sum / (count1 * count2 * count3)
+                else:
+                    result[p_idx1,p_idx2,p_idx3] = 0
+            
+    return result
+
+cpdef np.ndarray[DTYPE_d_t, ndim=1] _continuity_1d_core_cy(double[:] data, Py_ssize_t[:] conts):
+    """
+    1次元データの連続性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data = data.shape[0]
+    cdef Py_ssize_t n_conts = conts.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=1] result = np.zeros(n_conts, dtype=np.float64)
+    
+    cdef Py_ssize_t p_idx, i, j, lag
+    cdef double temp_sum,temp_min
+    cdef Py_ssize_t count
+    cdef double mean_val = 0
+
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data):
+        mean_val += data[i]
+    mean_val /= <double> n_data
+
+    for p_idx in range(n_conts):
+        lag = conts[p_idx]
         
-    return cont
+        if lag == 0:
+            result[p_idx] = mean_val
+            continue
+            
+        temp_sum = 0
+        count = n_data - lag
+        
+        # 内側のループを純粋なCで回す
+        # スライシングを使わず、インデックス i と i+lag を直接比較
+        for i in range(count):
+            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+            temp_min = data[i]
+            for j in range(lag):
+                if data[i + j] < temp_min:
+                    temp_min = data[i+j]
+
+            temp_sum += temp_min
+                
+        if count > 0:
+            result[p_idx] = <double> temp_sum / count
+        else:
+            result[p_idx] = 0
+            
+    return result
+
+cpdef np.ndarray[DTYPE_d_t, ndim=2] _continuity_2d_core_cy(double[:,:] data, Py_ssize_t[:] conts1, Py_ssize_t[:] conts2):
+    """
+    2次元データの連続性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data1 = data.shape[0]
+    cdef Py_ssize_t n_data2 = data.shape[1]
+    cdef Py_ssize_t n_conts1 = conts1.shape[0]
+    cdef Py_ssize_t n_conts2 = conts2.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=2] result = np.zeros((n_conts1,n_conts2), dtype=np.float64)
+    
+    cdef Py_ssize_t p_idx1, p_idx2, i, j, k, l, lag1, lag2 
+    cdef double temp_sum, temp_min
+    cdef Py_ssize_t count1, count2
+    cdef double mean_val = 0
+
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data1):
+        for j in range(n_data2):
+            mean_val += data[i,j]
+    mean_val /= <double> n_data1*n_data2
+
+    for p_idx1 in range(n_conts1):
+        for p_idx2 in range(n_conts2):
+            lag1 = conts1[p_idx1]
+            lag2 = conts2[p_idx2]
+
+            if (lag1 == 0) & (lag2 == 0):
+                result[p_idx1,p_idx2] = mean_val
+                continue
+                
+            temp_sum = 0
+            count1 = n_data1 - lag1
+            count2 = n_data2 - lag2
+            
+            # 内側のループを純粋なCで回す
+            # スライシングを使わず、インデックス i と i+lag を直接比較
+            for i in range(count1):
+                for j in range(count2):
+                    temp_min = data[i,j]
+                    for k in range(lag1):
+                        for l in range(lag2):
+                            if data[i+k,j+l] < temp_min:
+                                temp_min = data[i+k,j+l]
+
+                    # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                    temp_sum += temp_min
+                    
+            if (count1 > 0) & (count2 > 0):
+                result[p_idx1,p_idx2] = <double> temp_sum / (count1 * count2)
+            else:
+                result[p_idx1,p_idx2] = 0
+            
+    return result
+
+
+cpdef np.ndarray[DTYPE_d_t, ndim=3] _continuity_3d_core_cy(double[:,:,:] data, Py_ssize_t[:] conts1, Py_ssize_t[:] conts2, Py_ssize_t[:] conts3):
+    """
+    3次元データの連続性解析コアロジック (Cython版)
+    """
+    cdef Py_ssize_t n_data1 = data.shape[0]
+    cdef Py_ssize_t n_data2 = data.shape[1]
+    cdef Py_ssize_t n_data3 = data.shape[2]
+    cdef Py_ssize_t n_conts1 = conts1.shape[0]
+    cdef Py_ssize_t n_conts2 = conts2.shape[0]
+    cdef Py_ssize_t n_conts3 = conts3.shape[0]
+    cdef np.ndarray[DTYPE_d_t, ndim=3] result = np.zeros((n_conts1,n_conts2,n_conts3), dtype=np.float64)
+    
+    cdef Py_ssize_t p_idx1, p_idx2, p_idx3, i, j, k, l, m, n, lag1, lag2, lag3
+    cdef double temp_sum, temp_min
+    cdef Py_ssize_t count1, count2, count3
+    cdef double mean_val = 0
+
+    # データの平均をあらかじめ計算（lag=0用）
+    for i in range(n_data1):
+        for j in range(n_data2):
+            for k in range(n_data3):
+                mean_val += data[i,j,k]
+    mean_val /= <double> n_data1*n_data2*n_data3
+
+    for p_idx1 in range(n_conts1):
+        for p_idx2 in range(n_conts2):
+            for p_idx3 in range(n_conts3):
+                lag1 = conts1[p_idx1]
+                lag2 = conts2[p_idx2]
+                lag3 = conts3[p_idx3]
+
+                if (lag1 == 0) & (lag2 == 0) & (lag3 == 0):
+                    result[p_idx1,p_idx2] = mean_val
+                    continue
+                    
+                temp_sum = 0
+                count1 = n_data1 - lag1
+                count2 = n_data2 - lag2
+                count3 = n_data3 - lag3
+                
+                # 内側のループを純粋なCで回す
+                # スライシングを使わず、インデックス i と i+lag を直接比較
+                for i in range(count1):
+                    for j in range(count2):
+                        for k in range(count3):
+                            temp_min = data[i,j,k]
+                            for l in range(lag1):
+                                for m in range(lag2):
+                                    for n in range(lag3):
+                                        if data[i+l,j+m,k+n] < temp_min:
+                                            temp_min = data[i+l,j+m,k+n]
+
+                            # libc.math.fmin を使うことで Python の min() 呼び出しを回避
+                            temp_sum += temp_min
+                        
+                if (count1 > 0) & (count2 > 0) & (count3 > 0):
+                    result[p_idx1,p_idx2,p_idx3] = <double> temp_sum / (count1 * count2 * count3)
+                else:
+                    result[p_idx1,p_idx2,p_idx3] = 0
+            
+    return result

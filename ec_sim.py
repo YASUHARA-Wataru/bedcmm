@@ -334,7 +334,7 @@ def main():
     for per_id_df in list_per_id:
         data = np.array(per_id_df['roll_ac_time'],dtype=np.float64)[window_size:]
         user_ids.append(per_id_df['user_id'].iloc[0])
-        bedcmm_points.append(bedcmm.pattern_1d(data,base)[0])
+        bedcmm_points.append(bedcmm.pattern(data,base)[0])
 
     threshould = 0.8
     result_df = pd.DataFrame({'user_id':user_ids,'bedcmm_point':bedcmm_points,'revisit_flag':0})

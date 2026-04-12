@@ -54,8 +54,8 @@ base = np.array([max_temp_thre,max_temp_thre,0,0,0,0,0,0,0,0,0,0,
                  max_temp_thre,max_temp_thre,0,0,0,0,0,0,0,0,0,0,
                  min_temp_thre,min_temp_thre],dtype=np.float64)
 
-pattern_tokyo = bedcmm.pattern_1d(np_temp_tokyo,base)
-pattern_akankohan = bedcmm.pattern_1d(np_temp_akankohan,base)
+pattern_tokyo = bedcmm.pattern(np_temp_tokyo,base)
+pattern_akankohan = bedcmm.pattern(np_temp_akankohan,base)
 
 hot_continus_hour_tokyo = pattern_tokyo>1
 hot_continus_hour_akankohan = pattern_akankohan>1
