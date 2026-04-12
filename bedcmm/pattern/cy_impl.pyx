@@ -40,10 +40,10 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
         nega_cnt = 0
         for i in range(n_base):
             if base[i] != 0:
-                if (data[index+i] >= 0 and base[i] > 0) or (data[index+i] <= 0 and base[i] < 0):
+                if (data[index+i] > 0 and base[i] > 0) or (data[index+i] < 0 and base[i] < 0):
                     all_cnt += 1
                     posi_cnt += 1
-                elif (data[index+i] >= 0 and base[i] < 0) or (data[index+i] <= 0 and base[i] > 0):
+                elif (data[index+i] > 0 and base[i] < 0) or (data[index+i] < 0 and base[i] > 0):
                     all_cnt += 1
                     nega_cnt += 1
 
@@ -220,18 +220,9 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _periodicity_1d_core_cy(double[:] data, Py_s
     cdef Py_ssize_t count
     cdef double mean_val = 0
 
-    # データの平均をあらかじめ計算（lag=0用）
-    for i in range(n_data):
-        mean_val += data[i]
-    mean_val /= <double> n_data
-
     for p_idx in range(n_periods):
         lag = periods[p_idx]
         
-        if lag == 0:
-            result[p_idx] = mean_val
-            continue
-            
         temp_sum = 0
         count = n_data - lag
         
@@ -264,20 +255,10 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _periodicity_2d_core_cy(double[:,:] data, Py
     cdef Py_ssize_t count1, count2
     cdef double mean_val = 0
 
-    # データの平均をあらかじめ計算（lag=0用）
-    for i in range(n_data1):
-        for j in range(n_data2):
-            mean_val += data[i,j]
-    mean_val /= <double> n_data1*n_data2
-
     for p_idx1 in range(n_periods1):
         for p_idx2 in range(n_periods2):
             lag1 = periods1[p_idx1]
             lag2 = periods2[p_idx2]
-
-            if (lag1 == 0) & (lag2 == 0):
-                result[p_idx1,p_idx2] = mean_val
-                continue
                 
             temp_sum = 0
             count1 = n_data1 - lag1
@@ -315,23 +296,12 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _periodicity_3d_core_cy(double[:,:,:] data, 
     cdef Py_ssize_t count1, count2, count3
     cdef double mean_val = 0
 
-    # データの平均をあらかじめ計算（lag=0用）
-    for i in range(n_data1):
-        for j in range(n_data2):
-            for k in range(n_data3):
-                mean_val += data[i,j,k]
-    mean_val /= <double> n_data1*n_data2*n_data3
-
     for p_idx1 in range(n_periods1):
         for p_idx2 in range(n_periods2):
             for p_idx3 in range(n_periods3):
                 lag1 = periods1[p_idx1]
                 lag2 = periods2[p_idx2]
                 lag3 = periods3[p_idx3]
-
-                if (lag1 == 0) & (lag2 == 0) & (lag3 == 0):
-                    result[p_idx1,p_idx2,p_idx3]= mean_val
-                    continue
                     
                 temp_sum = 0
                 count1 = n_data1 - lag1
@@ -385,9 +355,9 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _continuity_1d_core_cy(double[:] data, Py_ss
         # スライシングを使わず、インデックス i と i+lag を直接比較
         for i in range(count):
             temp_min = data[i]
-            for j in range(lag):
-                if data[i + j + 1] < temp_min:
-                    temp_min = data[i+j+1]
+            for j in range(lag+1):
+                if data[i + j] < temp_min:
+                    temp_min = data[i+j]
 
             temp_sum += temp_min
                 

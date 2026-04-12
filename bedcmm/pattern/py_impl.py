@@ -160,7 +160,7 @@ def periodicity(data, periods=None):
 def _periodicity_1d(data,periods):
     
     if periods is None:
-        periods = np.arange(0,int(data.shape[0]/2)+1)
+        periods = np.arange(0,int(data.shape[0]/2))
 
     period = np.ascontiguousarray(periods,dtype=np.int64)
 
@@ -177,9 +177,7 @@ def _periodicity_1d_core(data,period):
 
     result = np.zeros(len(period))
     for p_idx,a_preiod in enumerate(period):
-        if a_preiod == 0:
-            result[p_idx] = np.mean(data)
-            continue
+
         temp_data = np.zeros(data.shape[0] - a_preiod)
         for index in range(data.shape[0] - a_preiod):
             temp_data[index] = min([data[index],data[index+a_preiod]])
@@ -191,14 +189,14 @@ def _periodicity_1d_core(data,period):
 def _periodicity_2d(data,periods):
     
     if periods is None:
-        period1_list = np.arange(0,int(data.shape[0]/2)+1)
-        period2_list = np.arange(0,int(data.shape[1]/2)+1)
+        period1_list = np.arange(0,int(data.shape[0]/2))
+        period2_list = np.arange(0,int(data.shape[1]/2))
     else:
         period1_list = periods[0]
         period2_list = periods[1]
 
     period1_list = np.ascontiguousarray(period1_list,dtype=np.int64)
-    period2_list = np.ascontiguousarray(period1_list,dtype=np.int64)
+    period2_list = np.ascontiguousarray(period2_list,dtype=np.int64)
 
     if implementation == 'Cython':
         result = _periodicity_2d_core_cy(data,period1_list,period2_list)
@@ -214,9 +212,6 @@ def _periodicity_2d_core(data,period1_list,period2_list):
     result = np.zeros((len(period1_list),len(period2_list)))
     for p1_idx,preiod1 in enumerate(period1_list):
         for p2_idx,preiod2 in enumerate(period2_list):
-            if preiod1 == 0 and preiod2 == 0:
-                result[p1_idx,p2_idx] = np.mean(data)
-                continue
             temp_data = np.zeros((data.shape[0] - preiod1,data.shape[1] - preiod2))
             for index1 in range(data.shape[0] - preiod1):
                 for index2 in range(data.shape[1] - preiod2):
@@ -228,9 +223,9 @@ def _periodicity_2d_core(data,period1_list,period2_list):
 def _periodicity_3d(data,periods):
     
     if periods is None:
-        period1_list = np.arange(0,int(data.shape[0]/2)+1)
-        period2_list = np.arange(0,int(data.shape[1]/2)+1)
-        period3_list = np.arange(0,int(data.shape[2]/2)+1)
+        period1_list = np.arange(0,int(data.shape[0]/2))
+        period2_list = np.arange(0,int(data.shape[1]/2))
+        period3_list = np.arange(0,int(data.shape[2]/2))
     else:
         period1_list = periods[0]
         period2_list = periods[1]
