@@ -26,7 +26,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
     cdef Py_ssize_t n_data, n_base
     cdef Py_ssize_t i
     cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
-    cdef Py_ssize_t naga_posi_flag
+    cdef Py_ssize_t nega_posi_flag
 
     n_data = data.shape[0]
     n_base = base.shape[0]
@@ -40,21 +40,21 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
         nega_cnt = 0
         for i in range(n_base):
             if base[i] != 0:
-                if data[index+i]*base[i] > 0:
+                if (data[index+i] > 0 and base[i] > 0) or (data[index+i] < 0 and base[i] < 0):
                     all_cnt += 1
                     posi_cnt += 1
-                elif data[index+i]*base[i] < 0:
+                elif (data[index+i] > 0 and base[i] < 0) or (data[index+i] < 0 and base[i] > 0):
                     all_cnt += 1
                     nega_cnt += 1
         if all_cnt == posi_cnt:
-            naga_posi_flag = 1
+            nega_posi_flag = 1
         elif all_cnt == nega_cnt:
-            naga_posi_flag = -1
+            nega_posi_flag = -1
         else:
-            naga_posi_flag = 0
+            naga_pnega_posi_flagosi_flag = 0
 
         # calc pattern
-        if naga_posi_flag == 1:
+        if nega_posi_flag == 1:
             temp_result = INFINITY
             for i in range(n_base):
                 if base[i] != 0:
@@ -62,7 +62,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=1] _pattern_1d_cy(double[:] data,double[:] base
                         temp_result = <double> data[index+i]/base[i]
             result[index] = temp_result
 
-        elif naga_posi_flag == -1:
+        elif nega_posi_flag == -1:
             temp_result = 0
             for i in range(n_base):
                 if base[i] != 0:
@@ -82,7 +82,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
     cdef Py_ssize_t n_data1, n_data2, n_base1, n_base2
     cdef Py_ssize_t i,j
     cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
-    cdef Py_ssize_t naga_posi_flag
+    cdef Py_ssize_t nega_posi_flag
 
     n_data1 = data.shape[0]
     n_data2 = data.shape[1]
@@ -100,21 +100,21 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
             for i in range(n_base1):
                 for j in range(n_base2):
                     if base[i,j] != 0:
-                        if data[index1+i,index2+j]*base[i,j] > 0:
+                        if (data[index1+i,index2+j] > 0 and base[i,j] < 0) or (data[index1+i,index2+j] < 0 and base[i,j] > 0):
                             all_cnt += 1
                             posi_cnt += 1
-                        elif data[index1+i,index2+j]*base[i,j] < 0:
+                        elif (data[index1+i,index2+j] > 0 and base[i,j] < 0) or (data[index1+i,index2+j] < 0 and base[i,j] > 0):
                             all_cnt += 1
                             nega_cnt += 1
             if all_cnt == posi_cnt:
-                naga_posi_flag = 1
+                nega_posi_flag = 1
             elif all_cnt == nega_cnt:
-                naga_posi_flag = -1
+                nega_posi_flag = -1
             else:
-                naga_posi_flag = 0
+                nega_posi_flag = 0
 
             # calc pattern
-            if naga_posi_flag == 1:
+            if nega_posi_flag == 1:
                 temp_result = INFINITY
                 for i in range(n_base1):
                     for j in range(n_base2):
@@ -123,7 +123,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=2] _pattern_2d_cy(double[:,:] data,double[:,:] 
                                 temp_result = <double> data[index1+i,index2+j]/base[i,j]
                 result[index1,index2] = temp_result
 
-            elif naga_posi_flag == -1:
+            elif nega_posi_flag == -1:
                 temp_result = 0
                 for i in range(n_base1):
                     for j in range(n_base2):
@@ -144,7 +144,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:
     cdef Py_ssize_t n_data1, n_data2, n_data3, n_base1, n_base2, n_base3
     cdef Py_ssize_t i,j,k
     cdef Py_ssize_t posi_cnt,nega_cnt,all_cnt
-    cdef Py_ssize_t naga_posi_flag
+    cdef Py_ssize_t nega_posi_flag
 
     n_data1 = data.shape[0]
     n_data2 = data.shape[1]
@@ -166,21 +166,21 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:
                     for j in range(n_base2):
                         for k in range(n_base3):
                             if base[i,j,k] != 0:
-                                if data[index1+i,index2+j,index3+k]*base[i,j,k] > 0:
+                                if (data[index1+i,index2+j,index3+k] > 0 and base[i,j,k] < 0) or (data[index1+i,index2+j,index3+k] < 0 and base[i,j,k] > 0):
                                     all_cnt += 1
                                     posi_cnt += 1
-                                elif data[index1+i,index2+j,index3+k]*base[i,j,k] < 0:
+                                elif (data[index1+i,index2+j,index3+k] > 0 and base[i,j,k] < 0) or (data[index1+i,index2+j,index3+k] < 0 and base[i,j,k] > 0):
                                     all_cnt += 1
                                     nega_cnt += 1
                 if all_cnt == posi_cnt:
-                    naga_posi_flag = 1
+                    nega_posi_flag = 1
                 elif all_cnt == nega_cnt:
-                    naga_posi_flag = -1
+                    nega_posi_flag = -1
                 else:
-                    naga_posi_flag = 0
+                    nega_posi_flag = 0
 
                 # calc pattern
-                if naga_posi_flag == 1:
+                if nega_posi_flag == 1:
                     temp_result = INFINITY
                     for i in range(n_base1):
                         for j in range(n_base2):
@@ -190,7 +190,7 @@ cpdef np.ndarray[DTYPE_d_t, ndim=3] _pattern_3d_cy(double[:,:,:] data,double[:,:
                                         temp_result = <double> data[index1+i,index2+j,index3+k]/base[i,j,k]
                     result[index1,index2] = temp_result
 
-                elif naga_posi_flag == -1:
+                elif nega_posi_flag == -1:
                     temp_result = 0
                     for i in range(n_base1):
                         for j in range(n_base2):
