@@ -7,6 +7,9 @@ Copyright (c) 2025, Feel a Piece of the World
 """
 import numpy as np
 import warnings
+class NegativeValueWarning(UserWarning):
+    """for periodicity and continuity warning"""
+    pass
 from ._config import implementation
 if implementation == 'Cython':
     from .cy_impl import _pattern_1d_cy,_pattern_2d_cy,_pattern_3d_cy
@@ -126,7 +129,7 @@ def periodicity(data, periods=None):
     data_dim = data.ndim
 
     if np.min(data) < 0:
-        warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",UserWarning)
+        warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",NegativeValueWarning)
     
     # periodsのバリデーションを整理
     if periods is not None:
@@ -271,7 +274,7 @@ def continuity(data, conts=None):
     data_dim = data.ndim
 
     if np.min(data) < 0:
-        warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",UserWarning)
+        warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",NegativeValueWarning)
     
     # periodsのバリデーションを整理
     if conts is not None:
