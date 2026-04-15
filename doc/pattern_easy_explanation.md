@@ -9,17 +9,18 @@ The fundamental theory of **bedcmm** (Base Extraction Division Correlation Minim
 ## Equation
 $$
 \begin{aligned}
-b &= (b_0,b_,...,b_{l-1}) \\\\
+b &= (b_0,b_1,...,b_{l-1}) \\\\
 x &= (x_1,x_2,x_3,...,x_m) \\\\
-I(𝑏) &= \\{ 𝑘 ∈ {0,1,2,3,…,l-1}|𝑏_𝑘 \neq 0 \\} \\\\ 
+I(b) &= \{ k ∈ {0,1,2,3,…,l-1}|b_k \neq 0 \} \\\\ 
+F_{min}(x,b,i) &= \underset{k \in I(b)}{  \min}(\frac{x_{i+k}}{b_k}) \\\\
+F_{max}(x,b,i) &= \underset{k \in I(b)}{\max}(\frac{x_{i+k}}{b_k}) \\\\
 C_i(x,b) &= \begin{cases}
-min(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) & min(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) > 0 \\\\
-max(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) & max(\frac{x_k(x_i,x_{i+1},...,x_{i+l-1})(k \in I(b))}{b_k(k \in I(b))}) < 0 \\\\
-0 & else  
+F_{min}(x,b) & F_{min}(x,b) > 0 \\\\
+F_{max}(x,b) & F_{max}(x,b) < 0 \\\\
+0 & \text{otherwise} \\\\
 \end{cases}
 \end{aligned}
 $$
-
 ---
 
 ## Pattern Extraction with bedcmm
