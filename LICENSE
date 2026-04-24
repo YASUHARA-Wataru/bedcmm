@@ -1,9 +1,16 @@
 Copyright (c) 2025, Feel a Piece of the World
 
-This source code is a partial implementation of a Japanese patented algorithm.
+This software includes an implementation of an algorithm that is patented or patent-pending in Japan.
 
-Permission is granted for non-commercial, academic, and research use only.
+Permission is granted to use, modify, and share this software for non-commercial purposes, including academic research, evaluation, and Proof of Concept (PoC).
 
-Commercial use, redistribution, or modification for profit requires explicit written permission.
+The following uses are prohibited without a separate license agreement:
+- Commercial use (including integration into products or services, or any monetized use)
+- Use in production environments
+
+For commercial use or production deployment, a separate license is required.
+Please contact us with a brief description of your use case:
 
 Contact: fapow.contact[at]gmail.com
+
+This software is provided "AS IS", without warranty of any kind.
