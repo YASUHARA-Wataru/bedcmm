@@ -1,16 +1,32 @@
 Copyright (c) 2025, Feel a Piece of the World
 
-This software includes an implementation of an algorithm that is patented or patent-pending in Japan.
+This software includes algorithms that are patented or patent-pending in Japan.
 
-Permission is granted to use, modify, and share this software for non-commercial purposes, including academic research, evaluation, and Proof of Concept (PoC).
+■ License Grant
+This software is provided free of charge for non-commercial purposes only, including academic research, evaluation, and technical verification (Proof of Concept, PoC).
 
-The following uses are prohibited without a separate license agreement:
-- Commercial use (including integration into products or services, or any monetized use)
+Modification and redistribution of this software and its derivatives are permitted for non-commercial purposes only.
+
+■ Definition of Non-Commercial / PoC
+"Non-commercial use" means use that does not directly or indirectly generate revenue.
+PoC use is limited to temporary evaluation and testing purposes and does not include continuous operation or use in production environments.
+
+■ Restrictions
+The following uses are strictly prohibited:
+- Commercial use (including integration into products or services, monetization, SaaS, etc.)
 - Use in production environments
+- Continuous or operational use beyond evaluation purposes
+- Providing competing services based on the core functionality of this software
 
-For commercial use or production deployment, a separate license is required.
-Please contact us with a brief description of your use case:
+■ Commercial Licensing
+For commercial use or production deployment, a separate commercial license is required.
+Please contact us with your use case.
 
 Contact: fapow.contact[at]gmail.com
 
-This software is provided "AS IS", without warranty of any kind.
+■ Disclaimer
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+USE OF THE SOFTWARE IS AT YOUR OWN RISK.
