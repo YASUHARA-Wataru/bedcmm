@@ -14,6 +14,10 @@ designed to remain stable under outliers and impulsive noise.
     https://github.com/YASUHARA-Wataru/bedcmmPitch
   - Periodicity analysis robust to outliers  
     (`example_temperature_period_ana.py`)
+    - Support for missing values (NaN)
+  - Periodicity can be computed directly without interpolation or preprocessing
+    - Outputs the valid data ratio (`valid_ratio`) as a measure of reliability
+    - Shows behavior similar to autocorrelation on complete data, while remaining applicable to datasets with missing values
 - Quantitative continuity calculation
 - Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required(only send), randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
 

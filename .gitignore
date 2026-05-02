@@ -23,7 +23,8 @@ dist/
 
 # テスト用ファイル
 pattern_test_easy.py
-
+easy_test_nanperiod.py
+test_nanperiod.py
 *.egg-info
 
 # 例外

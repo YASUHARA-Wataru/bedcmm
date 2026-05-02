@@ -15,6 +15,7 @@ if implementation == 'Cython':
     from .cy_impl import _pattern_1d_cy,_pattern_2d_cy,_pattern_3d_cy
     from .cy_impl import _periodicity_1d_core_cy,_periodicity_2d_core_cy,_periodicity_3d_core_cy
     from .cy_impl import _continuity_1d_core_cy,_continuity_2d_core_cy,_continuity_3d_core_cy
+    from .cy_impl import _nanperiodicity_1d_core_cy,_nanperiodicity_2d_core_cy,_nanperiodicity_3d_core_cy
 
 
 def period2index(period_min,period_max,fs):
@@ -429,6 +430,171 @@ def _continuity_3d_core(data,conts1_list,conts2_list,conts3_list):
     return result
 
 
+def _nanperiodicity_1d_core(data, period):
+
+    n_period = len(period)
+    result = np.zeros(n_period, dtype=np.float64)
+    valid_ratio = np.zeros(n_period, dtype=np.float64)
+
+    for p_idx, a_period in enumerate(period):
+
+        valid_sum = 0.0
+        valid_count = 0
+        total_count = data.shape[0] - a_period
+
+        for index in range(total_count):
+            x = data[index]
+            y = data[index + a_period]
+
+            if not (np.isnan(x) or np.isnan(y)):
+                valid_sum += min(x, y)
+                valid_count += 1
+
+        if valid_count > 0:
+            result[p_idx] = valid_sum / valid_count
+        else:
+            result[p_idx] = np.nan
+
+        valid_ratio[p_idx] = valid_count / total_count if total_count > 0 else 0.0
+
+    return result, valid_ratio
+
+def _nanperiodicity_2d_core(data, period1_list, period2_list):
+
+    result = np.zeros((len(period1_list), len(period2_list)), dtype=np.float64)
+    valid_ratio = np.zeros_like(result)
+
+    max_len1 = data.shape[0]
+    max_len2 = data.shape[1]
+
+    for p1_idx, period1 in enumerate(period1_list):
+        for p2_idx, period2 in enumerate(period2_list):
+
+            valid_sum = 0.0
+            valid_count = 0
+
+            total_count = (max_len1 - period1) * (max_len2 - period2)
+
+            for i in range(max_len1 - period1):
+                for j in range(max_len2 - period2):
+
+                    x = data[i, j]
+                    y = data[i + period1, j + period2]
+
+                    if not (np.isnan(x) or np.isnan(y)):
+                        valid_sum += min(x, y)
+                        valid_count += 1
+
+            if valid_count > 0:
+                result[p1_idx, p2_idx] = valid_sum / valid_count
+            else:
+                result[p1_idx, p2_idx] = np.nan
+
+            valid_ratio[p1_idx, p2_idx] = (
+                valid_count / total_count if total_count > 0 else 0.0
+            )
+
+    return result, valid_ratio
+
+def _nanperiodicity_3d_core(data, period1_list, period2_list, period3_list):
+
+    result = np.zeros(
+        (len(period1_list), len(period2_list), len(period3_list)),
+        dtype=np.float64
+    )
+    valid_ratio = np.zeros_like(result)
+
+    max_len1 = data.shape[0]
+    max_len2 = data.shape[1]
+    max_len3 = data.shape[2]
+
+    for p1_idx, period1 in enumerate(period1_list):
+        for p2_idx, period2 in enumerate(period2_list):
+            for p3_idx, period3 in enumerate(period3_list):
+
+                valid_sum = 0.0
+                valid_count = 0
+
+                total_count = (
+                    (max_len1 - period1)
+                    * (max_len2 - period2)
+                    * (max_len3 - period3)
+                )
+
+                for i in range(max_len1 - period1):
+                    for j in range(max_len2 - period2):
+                        for k in range(max_len3 - period3):
+
+                            x = data[i, j, k]
+                            y = data[i + period1, j + period2, k + period3]
+
+                            if not (np.isnan(x) or np.isnan(y)):
+                                valid_sum += min(x, y)
+                                valid_count += 1
+
+                if valid_count > 0:
+                    result[p1_idx, p2_idx, p3_idx] = valid_sum / valid_count
+                else:
+                    result[p1_idx, p2_idx, p3_idx] = np.nan
+
+                valid_ratio[p1_idx, p2_idx, p3_idx] = (
+                    valid_count / total_count if total_count > 0 else 0.0
+                )
+
+    return result, valid_ratio
+
+def nanperiodicity(data, periods=None):
+
+    data = np.ascontiguousarray(data, dtype=np.float64)
+    data_dim = data.ndim
+
+    if data_dim == 1:
+        if periods is None:
+            periods = np.arange(0, int(data.shape[0] / 2))
+        period = np.ascontiguousarray(periods, dtype=np.int64)
+
+        if implementation == 'Cython':
+            return _nanperiodicity_1d_core_cy(data, period)
+        else:
+            return _nanperiodicity_1d_core(data, period)
+
+        return _nanperiodicity_1d_core(data, period)
+
+    elif data_dim == 2:
+        if periods is None:
+            p1 = np.arange(0, int(data.shape[0] / 2))
+            p2 = np.arange(0, int(data.shape[1] / 2))
+        else:
+            p1, p2 = periods
+
+        p1 = np.ascontiguousarray(p1, dtype=np.int64)
+        p2 = np.ascontiguousarray(p2, dtype=np.int64)
+
+        if implementation == 'Cython':
+            return _nanperiodicity_2d_core_cy(data, p1, p2)
+        else:
+            return _nanperiodicity_2d_core(data, p1, p2)
+
+    elif data_dim == 3:
+        if periods is None:
+            p1 = np.arange(0, int(data.shape[0] / 2))
+            p2 = np.arange(0, int(data.shape[1] / 2))
+            p3 = np.arange(0, int(data.shape[2] / 2))
+        else:
+            p1, p2, p3 = periods
+
+        p1 = np.ascontiguousarray(p1, dtype=np.int64)
+        p2 = np.ascontiguousarray(p2, dtype=np.int64)
+        p3 = np.ascontiguousarray(p3, dtype=np.int64)
+
+        if implementation == 'Cython':
+            return _nanperiodicity_3d_core_cy(data, p1, p2, p3)
+        else:
+            return _nanperiodicity_3d_core(data, p1, p2, p3)
+
+    else:
+        raise Exception('data dimension too large')
+
 def main():
     test1d_array = [1,0,2,3.5,4,0]
     test2d_array = [[1,0,2,3.5,4,0],
@@ -504,6 +670,7 @@ def main():
     print(result)
     result = pattern(test3d_n_array,pattern_base_3d)
     print(result)
+
     print('periodicity')
     result = periodicity(test1d_array)
     print(result)
@@ -518,6 +685,28 @@ def main():
     print(result)
     result = periodicity(test3d_array,periods=[[1,2],[1],[1,2]])    
     print(result)
+
+    print('nanperiodicity')
+    result,valid = nanperiodicity(test1d_array)
+    print(result)
+    print(valid)
+    result,valid = nanperiodicity(test2d_array)
+    print(result)
+    print(valid)
+    result,valid = nanperiodicity(test3d_array)
+    print(result)
+    print(valid)
+
+    result,valid = nanperiodicity(test1d_array,periods=[1,2])
+    print(result)
+    print(valid)
+    result,valid = nanperiodicity(test2d_array,periods=[[1,2],[1]])
+    print(result)
+    print(valid)
+    result,valid = nanperiodicity(test3d_array,periods=[[1,2],[1],[1,2]])    
+    print(result)
+    print(valid)
+
 
     print('continuity')
     result = continuity(test1d_array)
