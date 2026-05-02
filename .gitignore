@@ -23,7 +23,6 @@ dist/
 
 # テスト用ファイル
 pattern_test_easy.py
-speed_test.py
 
 *.egg-info
 

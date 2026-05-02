@@ -6,9 +6,12 @@
 - 商用利用・再配布にはライセンスの取得が必要です（下記参照）
 
 ## 特徴
+インパルスノイズや外れ値に強い、パターン抽出、周期性解析の手法です。
 
 - 定量的なパターンの抽出
 - 定量的な周期性の計算
+  - スパイクノイズに強いピッチ検出への応用(https://github.com/YASUHARA-Wataru/bedcmmPitch)
+  - 外れ値に強い周期性解析(```exapmle_temperature_priod_ana.py```)
 - 定量的な連続性の計算
 - M系列使用時より短く、量子化1bitのみでの通信の多重化。
   ただし、同期(送信のみ)が必要で乱数性は確保されず、SN比は向上しません。
@@ -23,6 +26,35 @@
 ```python setup.py build_ext --inplace```
 cython実装になります(pattern modules)
 
+## 計算速度
+計算時間の検証スクリプトは、```speed_test.py```です。
+
+### Cython
+```
+       mode      N  time_msec
+0    random   1000     2.6160
+1    random   5000    61.1024
+2    random  10000   245.1453
+3  periodic   1000     1.2297
+4  periodic   5000    28.6166
+5  periodic  10000   110.1707
+6     spike   1000     1.3126
+7     spike   5000    27.9070
+8     spike  10000   113.7231
+```
+### Python only
+```
+       mode      N   time_msec
+0    random   1000    188.5421
+1    random   5000   4593.9274
+2    random  10000  19079.0753
+3  periodic   1000    196.6179
+4  periodic   5000   4723.4922
+5  periodic  10000  18833.8787
+6     spike   1000    206.1020
+7     spike   5000   4802.0938
+8     spike  10000  19601.9191
+```
 
 ## 特許情報
 
