@@ -602,8 +602,11 @@ def cross_periodicity(x,y,periods=None):
     if np.min(x) < 0 or np.min(y) < 0:
         warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",NegativeValueWarning)
 
-    if x_dim != y_dim:
-        raise Exception('x,y must be same demension.')
+    if x.shape != y.shape:
+        raise ValueError("x and y must have the same shape")
+
+    #if x_dim != y_dim:
+    #    raise Exception('x,y must be same demension.')
 
     # periodsのバリデーションを整理
     if periods is not None:
