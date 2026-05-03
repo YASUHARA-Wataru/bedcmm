@@ -1,6 +1,6 @@
 # bedcmm/pattern/__init__.py
 from ._config import implementation
-from .py_impl import pattern, periodicity, continuity,nanperiodicity, period2index,NegativeValueWarning
+from .py_impl import pattern, periodicity, continuity,nanperiodicity,cross_periodicity, period2index,NegativeValueWarning
 import warnings
 import sys
 
@@ -16,4 +16,4 @@ if implementation != 'Cython':
         RuntimeWarning
     )
 
-__all__ = ['pattern', 'periodicity', 'continuity', 'nanperiodicity', 'period2index','NegativeValueWarning','implementation']
+__all__ = ['pattern', 'periodicity', 'continuity', 'nanperiodicity', 'cross_periodicity', 'period2index','NegativeValueWarning','implementation']

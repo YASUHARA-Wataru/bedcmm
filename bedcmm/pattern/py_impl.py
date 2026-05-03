@@ -16,7 +16,7 @@ if implementation == 'Cython':
     from .cy_impl import _periodicity_1d_core_cy,_periodicity_2d_core_cy,_periodicity_3d_core_cy
     from .cy_impl import _continuity_1d_core_cy,_continuity_2d_core_cy,_continuity_3d_core_cy
     from .cy_impl import _nanperiodicity_1d_core_cy,_nanperiodicity_2d_core_cy,_nanperiodicity_3d_core_cy
-
+    from .cy_impl import _cross_periodicity_1d_core_cy,_cross_periodicity_2d_core_cy,_cross_periodicity_3d_core_cy
 
 def period2index(period_min,period_max,fs):
 
@@ -558,8 +558,6 @@ def nanperiodicity(data, periods=None):
         else:
             return _nanperiodicity_1d_core(data, period)
 
-        return _nanperiodicity_1d_core(data, period)
-
     elif data_dim == 2:
         if periods is None:
             p1 = np.arange(0, int(data.shape[0] / 2))
@@ -594,6 +592,198 @@ def nanperiodicity(data, periods=None):
 
     else:
         raise Exception('data dimension too large')
+
+def cross_periodicity(x,y,periods=None):
+    x = np.ascontiguousarray(x, dtype=np.float64)
+    y = np.ascontiguousarray(y, dtype=np.float64)
+    x_dim = x.ndim
+    y_dim = y.ndim
+
+    if np.min(x) < 0 or np.min(y) < 0:
+        warnings.warn(f"data contains negative. data understanding is difficult. but something meaning.",NegativeValueWarning)
+
+    if x_dim != y_dim:
+        raise Exception('x,y must be same demension.')
+
+    # periodsのバリデーションを整理
+    if periods is not None:
+        # 1. 次元数の不一致をまずチェック
+        if x_dim == 1:
+            # 1Dの場合、periods自体がリストであるべき。かつ、その中身がリストであってはならない
+            if not isinstance(periods, (list, np.ndarray)):
+                raise Exception('periods must be a list or array for 1D data.')
+            if len(periods) > 0 and isinstance(periods[0], (list, np.ndarray)):
+                raise Exception('periods for 1D data should not be a nested list.')
+        else:
+            # 多次元の場合、外側のリストの長さが次元数と一致すべき
+            if not isinstance(periods, (list, np.ndarray)) or len(periods) != x_dim:
+                raise Exception(f'periods must be a list of length {x_dim}.')
+            # 各要素がリスト（各次元のラグ候補）であることをチェック
+            for p in periods:
+                if not isinstance(p, (list, np.ndarray)):
+                    raise Exception('Each element of periods must be a list of lags for multi-dimensional data.')
+
+
+    if x_dim == 1:
+        result = _cross_periodicity_1d(x,y,periods)
+    elif x_dim == 2:
+        result = _cross_periodicity_2d(x,y,periods)
+    elif x_dim == 3:
+        result = _cross_periodicity_3d(x,y,periods)
+    else:
+        raise Exception('data is too big dimention.')
+
+    return result
+
+def _cross_periodicity_1d(x,y,periods):
+    
+    if periods is None:
+        periods = np.arange(0,int(x.shape[0]),dtype=np.int64)
+
+    period = np.ascontiguousarray(periods,dtype=np.int64)
+
+    if implementation == 'Cython':
+        result = _cross_periodicity_1d_core_cy(x,y,period)
+    elif implementation == 'Python':
+        result = _cross_periodicity_1d_core(x,y,period)
+    else:
+        raise Exception('error')
+    
+    return result
+
+def _cross_periodicity_1d_core(x,y,periods):
+
+    result = np.zeros(len(periods), dtype=np.float64)
+
+    for idx,period in enumerate(periods):
+        temp_sum = 0
+        count = 0
+        for i in range(x.shape[0]):
+            if i+period < y.shape[0]:
+                temp_sum += min(x[i],y[i+period])
+                count+=1
+        result[idx] = temp_sum/count
+    
+    result = np.array(result)
+
+    return result
+
+def _cross_periodicity_2d(x,y,periods):
+    
+    if periods is None:
+        period1_list = np.arange(0,x.shape[0],dtype=np.int64)
+        period2_list = np.arange(0,x.shape[1],dtype=np.int64)
+    else:
+        period1_list = np.ascontiguousarray(periods[0],dtype=np.int64)
+        period2_list = np.ascontiguousarray(periods[1],dtype=np.int64)
+
+
+    if implementation == 'Cython':
+        result = _cross_periodicity_2d_core_cy(x,y,period1_list,period2_list)
+    elif implementation == 'Python':
+        result = _cross_periodicity_2d_core(x,y,period1_list,period2_list)
+    else:
+        raise Exception('error')
+    
+    return result
+
+def _cross_periodicity_2d_core(x, y, period1_list,period2_list):
+    """
+    periods: [[dx list], [dy list]]
+    """
+    px_list = np.asarray(period1_list, dtype=np.int64)
+    py_list = np.asarray(period2_list, dtype=np.int64)
+
+    result = np.zeros((len(px_list), len(py_list)), dtype=np.float64)
+
+    H, W = x.shape
+
+    for ix, px in enumerate(px_list):
+        for iy, py in enumerate(py_list):
+            temp_sum = 0.0
+            count = 0
+
+            for i in range(H):
+                for j in range(W):
+                    ni = i + px
+                    nj = j + py
+
+                    if 0 <= ni < y.shape[0] and 0 <= nj < y.shape[1]:
+                        temp_sum += min(x[i, j], y[ni, nj])
+                        count += 1
+
+            if count > 0:
+                result[ix, iy] = temp_sum / count
+            else:
+                result[ix, iy] = 0.0
+
+    return result
+
+def _cross_periodicity_3d(x,y,periods):
+    
+    if periods is None:
+        period1_list = np.arange(0,x.shape[0],dtype=np.int64)
+        period2_list = np.arange(0,x.shape[1],dtype=np.int64)
+        period3_list = np.arange(0,x.shape[2],dtype=np.int64)
+    else:
+        period1_list = np.ascontiguousarray(periods[0],dtype=np.int64)
+        period2_list = np.ascontiguousarray(periods[1],dtype=np.int64)
+        period3_list = np.ascontiguousarray(periods[2],dtype=np.int64)
+
+
+    if implementation == 'Cython':
+        result = _cross_periodicity_3d_core_cy(x,y,period1_list,period2_list,period3_list)
+    elif implementation == 'Python':
+        result = _cross_periodicity_3d_core(x,y,period1_list,period2_list,period3_list)
+    else:
+        raise Exception('error')
+    
+    return result
+
+
+def _cross_periodicity_3d_core(x, y, period1_list,period2_list,period3_list):
+    """
+    periods: [[dx list], [dy list], [dz list]]
+    """
+    px_list = np.asarray(period1_list, dtype=np.int64)
+    py_list = np.asarray(period2_list, dtype=np.int64)
+    pz_list = np.asarray(period3_list, dtype=np.int64)
+
+    result = np.zeros(
+        (len(px_list), len(py_list), len(pz_list)),
+        dtype=np.float64
+    )
+
+    D, H, W = x.shape
+
+    for ix, px in enumerate(px_list):
+        for iy, py in enumerate(py_list):
+            for iz, pz in enumerate(pz_list):
+
+                temp_sum = 0.0
+                count = 0
+
+                for i in range(D):
+                    for j in range(H):
+                        for k in range(W):
+                            ni = i + px
+                            nj = j + py
+                            nk = k + pz
+
+                            if (
+                                0 <= ni < y.shape[0] and
+                                0 <= nj < y.shape[1] and
+                                0 <= nk < y.shape[2]
+                            ):
+                                temp_sum += min(x[i, j, k], y[ni, nj, nk])
+                                count += 1
+
+                if count > 0:
+                    result[ix, iy, iz] = temp_sum / count
+                else:
+                    result[ix, iy, iz] = 0.0
+
+    return result
 
 def main():
     test1d_array = [1,0,2,3.5,4,0]

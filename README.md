@@ -20,15 +20,17 @@ designed to remain stable under outliers and impulsive noise.
     - Shows behavior similar to autocorrelation on complete data, while remaining applicable to datasets with missing values
 - Quantitative continuity calculation
 - Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required(only send), randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
+- Cross-periodicity analysis (not part of the core patented claims)
+  - A method for comparing periodic structures between signals, analogous to the relationship between autocorrelation and cross-correlation
 
 ## Demo
 By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain simple sample results:
 
-Easy explanation is in `doc`.
+A brief explanation is available in the `doc` directory.
 
 ## How to run faster
 ```python setup.py build_ext --inplace```
-run with cython(pattern modules)
+Run with Cython (pattern modules)
 
 ## Calculation speed
 The benchmark script is ```speed_test.py```.
@@ -67,6 +69,21 @@ This algorithm is based on the following Japanese patent:
 - Title: Pattern Extraction and Communication Multiplexing Method
 - Registration Date: August 13, 2024
 - Summary: Methods for pattern extraction, periodicity calculation, continuity calculation, and communication multiplexing.
+
+## Scope of Patent and Non-Patented Implementations
+
+This repository contains both implementations covered by the patent and independent auxiliary or extended implementations.
+
+- Patent-covered components:
+  - Core algorithm for pattern extraction and periodicity analysis based on the Base Extraction Division Minimum Method
+
+- Extended implementations:
+  - Handling of missing values (NaN)
+
+- Non-patented implementations:
+  - Cross-periodicity analysis (e.g., `cross_periodicity` and related functions)
+
+The applicability of the patent may depend on the specific use case and implementation details.
 
 ## Contact
 fapow.contact[at]gmail.com

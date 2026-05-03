@@ -638,3 +638,160 @@ def _nanperiodicity_3d_core_cy(
                     valid_ratio[p1_idx, p2_idx, p3_idx] = 0.0
 
     return result, valid_ratio
+
+def _cross_periodicity_1d_core_cy(
+    double[::1] x,
+    double[::1] y,
+    np.int64_t[::1] periods
+):
+    cdef Py_ssize_t i, p_idx, n = x.shape[0]
+    cdef Py_ssize_t y_n = y.shape[0]
+    cdef Py_ssize_t period
+    cdef double temp_sum
+    cdef long count
+
+    cdef np.ndarray[np.float64_t, ndim=1] result = np.zeros(periods.shape[0], dtype=np.float64)
+
+    for p_idx in range(periods.shape[0]):
+        period = periods[p_idx]
+        temp_sum = 0.0
+        count = 0
+
+        for i in range(n):
+            if i + period < y_n:
+                if x[i] < y[i + period]:
+                    temp_sum += x[i]
+                else:
+                    temp_sum += y[i + period]
+                count += 1
+
+        if count > 0:
+            result[p_idx] = temp_sum / count
+        else:
+            result[p_idx] = 0.0
+
+    return result
+
+def _cross_periodicity_2d_core_cy(
+    double[:, ::1] x,
+    double[:, ::1] y,
+    np.int64_t[::1] px_list,
+    np.int64_t[::1] py_list
+):
+    cdef Py_ssize_t H = x.shape[0]
+    cdef Py_ssize_t W = x.shape[1]
+    cdef Py_ssize_t yH = y.shape[0]
+    cdef Py_ssize_t yW = y.shape[1]
+
+    cdef Py_ssize_t ix, iy, i, j
+    cdef Py_ssize_t px, py
+    cdef Py_ssize_t ni, nj
+
+    cdef double temp_sum
+    cdef long count
+
+    cdef np.ndarray[np.float64_t, ndim=2] result = np.zeros(
+        (px_list.shape[0], py_list.shape[0]),
+        dtype=np.float64
+    )
+
+    for ix in range(px_list.shape[0]):
+        px = px_list[ix]
+
+        for iy in range(py_list.shape[0]):
+            py = py_list[iy]
+
+            temp_sum = 0.0
+            count = 0
+
+            for i in range(H):
+                ni = i + px
+                if ni < 0 or ni >= yH:
+                    continue
+
+                for j in range(W):
+                    nj = j + py
+                    if nj < 0 or nj >= yW:
+                        continue
+
+                    if x[i, j] < y[ni, nj]:
+                        temp_sum += x[i, j]
+                    else:
+                        temp_sum += y[ni, nj]
+
+                    count += 1
+
+            if count > 0:
+                result[ix, iy] = temp_sum / count
+            else:
+                result[ix, iy] = 0.0
+
+    return result
+    
+def _cross_periodicity_3d_core_cy(
+    double[:, :, ::1] x,
+    double[:, :, ::1] y,
+    np.int64_t[::1] px_list,
+    np.int64_t[::1] py_list,
+    np.int64_t[::1] pz_list
+):
+    cdef Py_ssize_t D = x.shape[0]
+    cdef Py_ssize_t H = x.shape[1]
+    cdef Py_ssize_t W = x.shape[2]
+
+    cdef Py_ssize_t yD = y.shape[0]
+    cdef Py_ssize_t yH = y.shape[1]
+    cdef Py_ssize_t yW = y.shape[2]
+
+    cdef Py_ssize_t ix, iy, iz, i, j, k
+    cdef Py_ssize_t px, py, pz
+    cdef Py_ssize_t ni, nj, nk
+
+    cdef double temp_sum
+    cdef long count
+
+    cdef np.ndarray[np.float64_t, ndim=3] result = np.zeros(
+        (px_list.shape[0], py_list.shape[0], pz_list.shape[0]),
+        dtype=np.float64
+    )
+
+    for ix in range(px_list.shape[0]):
+        px = px_list[ix]
+
+        for iy in range(py_list.shape[0]):
+            py = py_list[iy]
+
+            for iz in range(pz_list.shape[0]):
+                pz = pz_list[iz]
+
+                temp_sum = 0.0
+                count = 0
+
+                for i in range(D):
+                    ni = i + px
+                    if ni < 0 or ni >= yD:
+                        continue
+
+                    for j in range(H):
+                        nj = j + py
+                        if nj < 0 or nj >= yH:
+                            continue
+
+                        for k in range(W):
+                            nk = k + pz
+                            if nk < 0 or nk >= yW:
+                                continue
+
+                            if x[i, j, k] < y[ni, nj, nk]:
+                                temp_sum += x[i, j, k]
+                            else:
+                                temp_sum += y[ni, nj, nk]
+
+                            count += 1
+
+                if count > 0:
+                    result[ix, iy, iz] = temp_sum / count
+                else:
+                    result[ix, iy, iz] = 0.0
+
+    return result

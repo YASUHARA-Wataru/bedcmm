@@ -25,6 +25,7 @@ dist/
 pattern_test_easy.py
 easy_test_nanperiod.py
 test_nanperiod.py
+test_cross_period.py
 *.egg-info
 
 # 例外
