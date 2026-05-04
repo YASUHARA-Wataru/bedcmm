@@ -22,6 +22,7 @@ designed to remain stable under outliers and impulsive noise.
 - Multiplexing communication using shorter sequences than M-sequences and only 1-bit quantization.However, synchronization is required(only send), randomness is not guaranteed, and signal-to-noise ratio (SNR) is not improved.
 - Cross-periodicity analysis (not part of the core patented claims)
   - A method for comparing periodic structures between signals, analogous to the relationship between autocorrelation and cross-correlation
+  
   Note: When the same signal is provided as both inputs, the result corresponds to auto-periodicity.
 
 ## Demo
