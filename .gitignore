@@ -29,6 +29,7 @@ easy_test_nanperiod.py
 test_nanperiod.py
 test_cross_period.py
 *.egg-info
+.pytest_cache/
 
 # 例外
 !search_com_keys.cpp

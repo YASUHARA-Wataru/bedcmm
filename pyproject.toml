@@ -1,15 +1,22 @@
 [build-system]
 requires = [
-    "setuptools>=61",
+    "setuptools>=77.0.0",
     "wheel",
     "Cython",
     "numpy",
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["bedcmm","bedcmm.pattern","bedcmm.communication"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["commnunication_key_info/*","sample_data/*","tests/*"]
+
+
 [project]
 name = "bedcmm"
-version = "2.40"
+version = "2.41"
 description = "Pattern Extraction and Periodicity analysis,and commnunication multiple method library based on BEDCMM"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,12 +28,6 @@ authors = [
 dependencies = [
   "numpy",
 ]
-
-[tool.setuptools]
-packages = ["bedcmm"]
-
-[tool.setuptools.exclude-package-data]
-"*" = ["commnunication_key_info/*","sample_data/*","tests/*"]
 
 [project.optional-dependencies]
 dev = [

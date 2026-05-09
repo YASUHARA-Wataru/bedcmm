@@ -1,3 +1,4 @@
+recursive-include bedcmm *.py *.pyd *.so *.dll
 include bedcmm/pattern/*.pyx
 prune communication_key_info
 prune sample_data
