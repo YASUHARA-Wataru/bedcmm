@@ -1,0 +1,5 @@
+include bedcmm/pattern/*.pyx
+prune communication_key_info
+prune sample_data
+prune tests
+global-exclude *.csv

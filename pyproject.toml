@@ -1,0 +1,39 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "wheel",
+    "Cython",
+    "numpy",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bedcmm"
+version = "2.40"
+description = "Pattern Extraction and Periodicity analysis,and commnunication multiple method library based on BEDCMM"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Custom"}
+authors = [
+  {name = "WATARU YASUHARA"}
+]
+
+dependencies = [
+  "numpy",
+]
+
+[tool.setuptools]
+packages = ["bedcmm"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["commnunication_key_info/*","sample_data/*","tests/*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/YASUHARA-Wataru/bedcmm"
+Repository = "https://github.com/YASUHARA-Wataru/bedcmm"
+Issues = "https://github.com/YASUHARA-Wataru/bedcmm/issues"

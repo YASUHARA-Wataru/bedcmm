@@ -11,6 +11,8 @@ __pycache__/
 *.exp
 *.lib
 
+# 環境ディレクトリ
+.venv/
 # ビルドディレクトリ
 build/
 dist/

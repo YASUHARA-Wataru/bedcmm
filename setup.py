@@ -14,7 +14,7 @@ ext_modules = cythonize([
 
 setup(
     name="bedcmm",
-    version="2.1",
+    version="2.40",
     author="WATARU YASUHARA",
     description="公開特許ベースのパターン抽出・通信多重化アルゴリズム",
     long_description=open("README.md", encoding="utf-8").read(),

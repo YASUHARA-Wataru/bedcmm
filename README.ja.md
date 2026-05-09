@@ -1,9 +1,11 @@
 # 特許アルゴリズムの公開実装（日本国内特許）
 
-このリポジトリでは、特許（日本）として登録された基底抽出割算最小法の実装を公開しています。
+このリポジトリでは、特許（日本）として登録された基底抽出割算最小法(bedcmm)の実装を公開しています。
 
 - 本実装は研究・検証・評価用途での利用を目的としています
 - 商用利用・再配布にはライセンスの取得が必要です（下記参照）
+
+bedcmmは、ロバストなパターン抽出、周期性解析、連続性解析、そしてバターン抽出を基づいた通信多重化方法です。
 
 ## 特徴
 インパルスノイズや外れ値に強い、パターン抽出、周期性解析の手法です。
@@ -21,8 +23,56 @@
   ただし、同期(送信のみ)が必要で乱数性は確保されず、SN比は向上しません。
 - 相互周期性解析（特許のコアクレームには含まれない実装）
   - 自己相関と相互相関の関係のように、周期性解析をデータ比較に用いる手法
-  
+
   ※ 同一のデータを入力した場合、自己周期性（auto-periodicity）に相当する結果が得られます。
+
+## Install
+```bash
+pip install bedcmm
+```
+## Example
+- pattern
+```python
+import numpy as np
+import bedcmm
+
+np.random.seed(0)
+
+# 周期 + ノイズ
+base = np.tile([1, 0, 0, 0], 25)
+noise = np.random.randint(0, 2, len(base)) * 0.1
+
+x = base + noise
+
+score = bedcmm.pattern.periodicity(x)
+
+print("periodicity score:", score)
+```
+- communication
+```python
+import numpy as np
+import bedcmm
+
+base1 = [False, False, False, False, False, True, True, True]
+base2 = [False, False, False, True, False, False, True, True]
+base3 = [False, True, False, False, False, False, True, True]
+tx1 = np.tile(base1, 5)
+tx2 = np.tile(base2, 5)
+tx3 = np.tile(base3, 5)
+
+tx = np.array([tx1,tx2,tx3])
+
+send_signal = bedcmm.communication.multiplexing(tx)
+print(send_signal)
+
+demod_signal1 = bedcmm.communication.demodulate(send_signal,base1)
+demod_signal2 = bedcmm.communication.demodulate(send_signal,base2)
+demod_signal3 = bedcmm.communication.demodulate(send_signal,base3)
+
+print("demod_signal1:", demod_signal1)
+print("demod_signal2:", demod_signal2)
+print("demod_signal3", demod_signal3)
+```
 
 ## デモ
 

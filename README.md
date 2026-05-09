@@ -4,6 +4,8 @@ This repository provides an open implementation of the "Base Extraction Division
 - This implementation is intended for research, verification, and evaluation purposes.
 - Commercial use or redistribution requires obtaining a license (see below).
 
+bedcmm is a library for robust periodicity, pattern extraction, and communication multiplexing based on a patented method.
+
 ## Features
 A robust algorithm for pattern extraction and periodicity analysis,
 designed to remain stable under outliers and impulsive noise.
@@ -24,6 +26,54 @@ designed to remain stable under outliers and impulsive noise.
   - A method for comparing periodic structures between signals, analogous to the relationship between autocorrelation and cross-correlation
   
   Note: When the same signal is provided as both inputs, the result corresponds to auto-periodicity.
+
+## Install
+```bash
+pip install bedcmm
+```
+## Example
+- pattern
+```python
+import numpy as np
+import bedcmm
+
+np.random.seed(0)
+
+# 周期 + ノイズ
+base = np.tile([1, 0, 0, 0], 25)
+noise = np.random.randint(0, 2, len(base)) * 0.1
+
+x = base + noise
+
+score = bedcmm.pattern.periodicity(x)
+
+print("periodicity score:", score)
+```
+- communication
+```python
+import numpy as np
+import bedcmm
+
+base1 = [False, False, False, False, False, True, True, True]
+base2 = [False, False, False, True, False, False, True, True]
+base3 = [False, True, False, False, False, False, True, True]
+tx1 = np.tile(base1, 5)
+tx2 = np.tile(base2, 5)
+tx3 = np.tile(base3, 5)
+
+tx = np.array([tx1,tx2,tx3])
+
+send_signal = bedcmm.communication.multiplexing(tx)
+print(send_signal)
+
+demod_signal1 = bedcmm.communication.demodulate(send_signal,base1)
+demod_signal2 = bedcmm.communication.demodulate(send_signal,base2)
+demod_signal3 = bedcmm.communication.demodulate(send_signal,base3)
+
+print("demod_signal1:", demod_signal1)
+print("demod_signal2:", demod_signal2)
+print("demod_signal3", demod_signal3)
+```
 
 ## Demo
 By running `pattern_demo.ipynb` and `communication_demo.ipynb`, you can obtain simple sample results:
