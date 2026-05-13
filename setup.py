@@ -13,22 +13,7 @@ ext_modules = cythonize([
 ], compiler_directives={'language_level': "3"})
 
 setup(
-    name="bedcmm",
-    version="2.42",
-    author="WATARU YASUHARA",
-    description="公開特許ベースのパターン抽出・通信多重化アルゴリズム",
-    long_description=open("README.md", encoding="utf-8").read(),
-    long_description_content_type="text/markdown",
-    url="https://github.com/YASUHARA-Wataru/bedcmm",
     packages=["bedcmm", "bedcmm.pattern", "bedcmm.communication"],
+    include_package_data=False,
     ext_modules=ext_modules,
-    cmdclass={"build_ext": build_ext},
-    install_requires=[
-        "cython",
-        "numpy"
-    ],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-    ],
-    python_requires='>=3.10',
 )
