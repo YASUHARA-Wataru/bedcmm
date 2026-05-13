@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=77.0.0",
+    "setuptools>=61.0.0",
     "wheel",
     "Cython",
     "numpy",
@@ -19,7 +19,7 @@ name = "bedcmm"
 version = "2.41"
 description = "Pattern Extraction and Periodicity analysis,and commnunication multiple method library based on BEDCMM"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = {text = "Custom"}
 authors = [
   {name = "WATARU YASUHARA"}
