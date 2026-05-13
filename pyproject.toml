@@ -11,13 +11,13 @@ build-backend = "setuptools.build_meta"
 packages = ["bedcmm","bedcmm.pattern","bedcmm.communication"]
 
 [tool.setuptools.exclude-package-data]
-"*" = ["commnunication_key_info/*","sample_data/*","tests/*"]
+"*" = ["communication_key_info/*","sample_data/*","tests/*"]
 
 
 [project]
 name = "bedcmm"
 version = "2.43"
-description = "Pattern Extraction and Periodicity analysis,and commnunication multiple method library based on BEDCMM"
+description = "Pattern Extraction and Periodicity analysis,and communication multiple method library based on BEDCMM"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "LicenseRef-Proprietary"
