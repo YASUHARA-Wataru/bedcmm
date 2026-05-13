@@ -16,7 +16,7 @@ packages = ["bedcmm","bedcmm.pattern","bedcmm.communication"]
 
 [project]
 name = "bedcmm"
-version = "2.41"
+version = "2.42"
 description = "Pattern Extraction and Periodicity analysis,and commnunication multiple method library based on BEDCMM"
 readme = "README.md"
 requires-python = ">=3.10"
