@@ -1,3 +1,7 @@
+![CI](https://github.com/YASUHARA-Wataru/bedcmm/actions/workflows/ci_test.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/bedcmm.svg)](https://badge.fury.io/py/bedcmm)
+![Python Versions](https://img.shields.io/pypi/pyversions/bedcmm)
+
 # 特許アルゴリズムの公開実装（日本国内特許）
 
 このリポジトリでは、特許（日本）として登録された基底抽出割算最小法(bedcmm)の実装を公開しています。

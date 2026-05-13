@@ -1,3 +1,9 @@
+# bedcmm
+
+![CI](https://github.com/YASUHARA-Wataru/bedcmm/actions/workflows/ci_test.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/bedcmm.svg)](https://badge.fury.io/py/bedcmm)
+![Python Versions](https://img.shields.io/pypi/pyversions/bedcmm)
+
 # Open Implementation of Patented Algorithm (Japan Patent)
 This repository provides an open implementation of the "Base Extraction Division Minimum Method," which is registered as a patent in Japan.
 
